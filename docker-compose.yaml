@@ -1,0 +1,57 @@
+volumes:
+  postgres_data: {}
+
+services:
+  watchtower:
+    image: containrrr/watchtower
+    restart: always
+    environment:
+      WATCHTOWER_LABEL_ENABLE: true
+      WATCHTOWER_ROLLING_RESTART: true
+      REPO_USER:  ${DOCKER_USERNAME}
+      REPO_PASS:  ${DOCKER_PASSWORD}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
+
+  traefik:
+    image: "traefik:v3.1"
+    container_name: "traefik"
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  db:
+    image: postgres:16
+    container_name: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ".env"
+    ports:
+      - 5432:5432
+
+  api:
+    image: ghrc.io/egortarasov/t1/api:dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.api.rule=Host(`localhost`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000" # Ensure this port matches the port your backend service listens on
+    env_file:
+      - .env

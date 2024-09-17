@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "t1"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.114.2"}
+sqlalchemy = "^2.0.35"
+asyncpg = "^0.29.0"
+pydantic-settings = "^2.5.2"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^1.11.2"
+pytest-black = "^0.3.12"
+black = "^24.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

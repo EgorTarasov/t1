@@ -1,0 +1,7 @@
+- [ ] set up dockerfile with poetry
+- [ ] set up docker compose
+- [ ] set up prometheus
+- [ ] set up alembic
+- [ ] set up github actions
+- [x] set up poetry
+- [x] set up sqlalchemy
