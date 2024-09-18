@@ -1,7 +1,8 @@
-- [ ] set up dockerfile with poetry
-- [ ] set up docker compose
 - [ ] set up prometheus
-- [ ] set up alembic
-- [ ] set up github actions
+- [x] set up github actions
+- [x] set up alembic
 - [x] set up poetry
 - [x] set up sqlalchemy
+- [x] set up dockerfile with poetry
+- [x] set up docker compose
+- [ ] update dockerfile https://gist.github.com/gh640/233a6daf68e9e937115371c0ecd39c61

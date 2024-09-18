@@ -1,22 +1,28 @@
 import logging
 from contextlib import asynccontextmanager
-
-from fastapi import FastAPI
+import time
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from config import config, Config
-from database import Database, db
+from src.config import app_config, Config
+from src.database import Database
+from src.dependencies import DatabaseMiddleware
+from src.auth.router import router as auth_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    db.set(Database(config.get().postgres_dsn))
+
+    db = Database(app_config.get().postgres_dsn)
+    DatabaseMiddleware.set_db(db)
+    print("db in lifespan", db)
     yield None
+    # TODO: close db connection
 
 
 def create_app() -> FastAPI:
-    config.set(Config())  # type: ignore
+    app_config.set(Config())  # type: ignore
     logging.basicConfig(
-        level=config.get().logging_level,
+        level=app_config.get().logging_level,
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
         filemode="w",
     )
@@ -35,12 +41,7 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_headers=["*"],
     )
-
-    @app.get("/")
-    async def health_check():
-        return {"status": "ok"}
-
-    # app.mount("/api/static", StaticFiles(directory="./backtests"), name="static")
+    app.include_router(auth_router)
 
     return app
 

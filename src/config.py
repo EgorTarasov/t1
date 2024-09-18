@@ -5,7 +5,7 @@ import logging
 
 
 class Config(BaseSettings):
-    model_config = SettingsConfigDict(env_file_encoding="utf-8", env_file="../.env")
+    model_config = SettingsConfigDict(env_file_encoding="utf-8", env_file="../../.env")
 
     logging: str = "DEBUG"
 
@@ -42,4 +42,4 @@ class Config(BaseSettings):
         return levels.get(self.logging.upper(), logging.INFO)
 
 
-config: ContextVar[Config] = ContextVar("config ")
+app_config: ContextVar[Config] = ContextVar("config")

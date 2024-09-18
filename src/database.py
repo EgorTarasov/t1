@@ -31,9 +31,12 @@ class Database:
     async def get_session(
         self,
     ) -> tp.AsyncGenerator[async_scoped_session[AsyncSession], tp.Any]:
+
         session: async_scoped_session[AsyncSession] = self.get_scoped_session()
-        yield session
-        await session.close()
-
-
-db: ContextVar[Database] = ContextVar("db")
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
