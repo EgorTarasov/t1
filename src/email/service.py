@@ -21,7 +21,7 @@ class EmailClient:
         mail_password: str,
         host: str = "smtp.mail.ru",
         port: int = 465,
-        templates_path: pathlib.Path | str = pathlib.Path("./templates"),
+        templates_path: pathlib.Path | str = pathlib.Path("templates"),
     ) -> None:
         """EmailClient для отправки писем через smtp сервер
 

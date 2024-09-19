@@ -19,6 +19,8 @@ passlib = "^1.7.4"
 mypy = "^1.11.2"
 pytest-black = "^0.3.12"
 black = "^24.8.0"
+alembic = "^1.13.2"
+bcrypt = "^4.2.0"
 
 [build-system]
 requires = ["poetry-core"]
