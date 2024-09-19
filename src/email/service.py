@@ -21,7 +21,7 @@ class EmailClient:
         mail_password: str,
         host: str = "smtp.mail.ru",
         port: int = 465,
-        templates_path: pathlib.Path | str = pathlib.Path("templates/email"),
+        templates_path: pathlib.Path | str = pathlib.Path("./templates"),
     ) -> None:
         """EmailClient для отправки писем через smtp сервер
 
@@ -81,7 +81,6 @@ class EmailClient:
         Raises:
             e: Ошибка создание шаблона / соединения с сервером
         """
-
         try:
             msg = MIMEText(
                 self._templates.get_template(f"{template}.html").render(**data),

@@ -6,7 +6,7 @@ import logging
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
-        # env_file_encoding="utf-8", env_file="../../dev.env"
+        # env_file_encoding="utf-8", env_file="../../local.env"
     )
 
     logging: str = "DEBUG"
@@ -17,6 +17,8 @@ class Config(BaseSettings):
 
     postgres_user: str
     postgres_password: str
+
+    domain: str = "http://localhost:8000"
 
     vk_client_id: str
     vk_secure_token: str
