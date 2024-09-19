@@ -35,7 +35,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
-      - ".env"
+      - local.env
     ports:
       - 5432:5432
 
@@ -54,4 +54,4 @@ services:
       - "traefik.http.routers.api.rule=Host(`localhost`)"
       - "traefik.http.services.backend.loadbalancer.server.port=8000" # Ensure this port matches the port your backend service listens on
     env_file:
-      - .env
+      - local.env
