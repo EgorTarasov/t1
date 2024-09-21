@@ -15,6 +15,10 @@ from src.email.service import EmailClient
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db = Database(app_config.get().postgres_dsn)
+    if not await db.check_connection():
+        raise ValueError("Database is not available")
+    else:
+        logging.info("connected to db")
     email_client = EmailClient(**dict(email_config.get()))
     DatabaseMiddleware.set_db(db)
     EmailClientMiddleware.set_email_client(email_client)
@@ -23,8 +27,8 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+    email_config.set(EmailConfig())  # type: ignore
     app_config.set(Config())  # type: ignore
-    email_config.set(EmailConfig())
 
     logging.basicConfig(
         level=app_config.get().logging_level,

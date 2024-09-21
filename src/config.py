@@ -6,7 +6,7 @@ import logging
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
-        # env_file_encoding="utf-8", env_file="../../local.env"
+        case_sensitive=False,
     )
 
     logging: str = "DEBUG"

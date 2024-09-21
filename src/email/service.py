@@ -4,7 +4,6 @@ import jinja2
 import logging
 from email.mime.text import MIMEText
 import typing as tp
-import os
 
 
 class EmailData(tp.TypedDict):
@@ -44,7 +43,9 @@ class EmailClient:
         self._templates = jinja2.Environment(
             loader=jinja2.FileSystemLoader(templates_path)
         )
-        #  self._server = self._create_connection()
+        if len(self._templates.list_templates()) == 0:
+            raise ValueError("No templates found")
+        logging.info("Email client initialized")
 
     def _create_connection(self) -> smtplib.SMTP_SSL:
 

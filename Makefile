@@ -12,4 +12,4 @@ migration-down:
 
 .PHONY: dev
 dev:
-	fastapi dev src/main.py
+	set -a && source local.env && set +a && fastapi dev src/main.py

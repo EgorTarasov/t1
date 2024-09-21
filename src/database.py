@@ -1,7 +1,7 @@
 from contextvars import ContextVar
 import typing as tp
 from asyncio import current_task
-
+import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     AsyncEngine,
@@ -28,9 +28,20 @@ class Database:
     def get_scoped_session(self) -> async_scoped_session[AsyncSession]:
         return async_scoped_session(self.session_factory, scopefunc=current_task)
 
+    async def check_connection(self) -> bool:
+        try:
+            async with self.engine.connect() as conn:
+                await conn.execute(sa.text("SELECT 1"))
+            return True
+        except Exception:
+            return False
+
     async def get_session(
         self,
     ) -> tp.AsyncGenerator[async_scoped_session[AsyncSession], tp.Any]:
+
+        if not await self.check_connection():
+            raise ConnectionError("Database connection is not alive")
 
         session: async_scoped_session[AsyncSession] = self.get_scoped_session()
         try:

@@ -1,4 +1,5 @@
-from src.models import Base, TimestampMixin
+from src import Base
+from src.models import TimestampMixin
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 import sqlalchemy as sa
 from datetime import datetime
@@ -10,7 +11,8 @@ class User(Base, TimestampMixin):
     last_name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
     email: Mapped[str] = mapped_column(sa.String(50), nullable=False)
     password: Mapped[str] = mapped_column(sa.Text, nullable=False)
-
+    deleted_at: Mapped[datetime] = mapped_column(default=None, nullable=True)
+    verified: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)
     verification: Mapped["EmailVerificationCode"] = relationship(
         "EmailVerificationCode", back_populates="user"
     )
@@ -26,7 +28,7 @@ class EmailVerificationCode(Base):
     code: Mapped[str] = mapped_column(sa.String(128), nullable=False)
     created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now())
     # change to timestamp when used
-    used_at: Mapped[datetime] = mapped_column(default=sa.Null)
+    used_at: Mapped[datetime] = mapped_column(default=None, nullable=True)
 
     user: Mapped[User] = relationship("User")
 
@@ -38,4 +40,4 @@ class EmailRecoveryCode(Base):
     user: Mapped[User] = relationship("User")
     created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now())
     # change to timestamp when used
-    used_at: Mapped[datetime] = mapped_column(default=sa.Null)
+    used_at: Mapped[datetime] = mapped_column(default=None, nullable=True)

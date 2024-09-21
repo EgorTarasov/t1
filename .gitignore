@@ -3,3 +3,5 @@ __pycache__
 .env
 .vscode
 .pytest_cache/
+.idea/
+local.env

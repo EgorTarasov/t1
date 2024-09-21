@@ -1,3 +1,4 @@
+import typing as tp
 from passlib.context import CryptContext  # type: ignore
 import hashlib
 import datetime as dt
@@ -23,7 +24,7 @@ class CodeManager:
 
     @classmethod
     def get_verification_code(cls, email: str) -> str:
-        return hashlib.md5((email + "id").encode())
+        return hashlib.sha256((email + "verification").encode()).hexdigest()
 
     @classmethod
     def get_reset_code(cls, email: str) -> str:
@@ -31,15 +32,15 @@ class CodeManager:
 
 
 def send_verification_code(
-    client: EmailClient, email: str, verification_code: str
+    client: EmailClient, email: str, verification_code: str, user_name: str
 ) -> None:
 
     subject = "Верификация аккаунта"
-    template = "registration.jinja2"
-    data = (
-        {
-            "verification_link": f"{app_config.get().domain}/email/verify{verification_code}"
-            # TODO: Get route from router
-        },
-    )
+    template = "email/recovery.jinja2"
+    data: dict[str, tp.Any] = {
+        "user_name": user_name,
+        "verification_url": f"{app_config.get().domain}/auth/email/verify",
+        "verification_code": verification_code,
+    }
+
     client.send_mailing(email, subject, template, data)

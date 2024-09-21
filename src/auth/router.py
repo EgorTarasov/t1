@@ -1,4 +1,5 @@
 import typing as tp
+import logging
 from fastapi import APIRouter, Depends, BackgroundTasks
 from src.dependencies import DatabaseMiddleware
 from src.email.dependencies import EmailClientMiddleware
@@ -6,6 +7,8 @@ from .models import User, EmailVerificationCode
 from .schemas import UserCreate
 from .service import PasswordManager, CodeManager, send_verification_code
 from sqlalchemy.ext.asyncio import AsyncSession
+import sqlalchemy as sa
+from sqlalchemy import orm
 from src.email.service import EmailClient
 
 router = APIRouter(
@@ -38,7 +41,7 @@ async def register(
         password=PasswordManager.hash_password(user.password),
     )
     db.add(db_user)
-    db.flush()
+    await db.flush()
 
     code_object = EmailVerificationCode(
         fk_user_id=db_user.id,
@@ -52,16 +55,45 @@ async def register(
         client=email_client,
         email=user.email,
         verification_code=code_object.code,
+        user_name=" ".join([user.first_name, user.last_name]),
     )
 
-    db.commit()
-
+    await db.commit()
+    # TODO: defines response schema
     return {"message": "User registered"}
 
 
-@router.post("/email/verify")
-async def verify(verification_code: str = None):
-    return
+@router.get("/email/verify")
+async def verify(
+    code: str | None = None,
+    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+):
+    if code is None:
+        return {"message": "Invalid request"}
+
+    stmt = (
+        sa.select(EmailVerificationCode)
+        .where(EmailVerificationCode.code == code)
+        .options(orm.joinedload(EmailVerificationCode.user))
+    )
+
+    user_code: EmailVerificationCode | None = (
+        await db.execute(stmt)
+    ).scalar_one_or_none()
+
+    if user_code is None:
+        logging.info(f"Code {code} not found")
+        return {"message": "Invalid request"}
+
+    if user_code.used_at is not None:
+        logging.info(f"Code {code} already used_at {user_code.used_at}")
+        return {"message": "Invalid request"}
+
+    user_code.used_at = sa.func.now()
+    user_code.user.verified = True
+    await db.commit()
+
+    return {"message": "User verified", "code": code}
 
 
 # TODO: Login
