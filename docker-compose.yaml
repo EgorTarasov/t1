@@ -34,6 +34,7 @@ services:
     container_name: db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - local.env
     ports:
@@ -55,3 +56,5 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=8000" # Ensure this port matches the port your backend service listens on
     env_file:
       - local.env
+    environment:
+      - POSTGRES_HOST:db

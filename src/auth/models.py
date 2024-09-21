@@ -9,7 +9,7 @@ class User(Base, TimestampMixin):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     first_name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
     last_name: Mapped[str] = mapped_column(sa.String(50), nullable=False)
-    email: Mapped[str] = mapped_column(sa.String(50), nullable=False)
+    email: Mapped[str] = mapped_column(sa.String(50), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(sa.Text, nullable=False)
     deleted_at: Mapped[datetime] = mapped_column(default=None, nullable=True)
     verified: Mapped[bool] = mapped_column(sa.Boolean, default=False, nullable=False)

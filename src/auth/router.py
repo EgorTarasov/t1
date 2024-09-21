@@ -1,6 +1,6 @@
 import typing as tp
 import logging
-from fastapi import APIRouter, Depends, BackgroundTasks
+from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from src.dependencies import DatabaseMiddleware
 from src.email.dependencies import EmailClientMiddleware
 from .models import User, EmailVerificationCode
@@ -40,8 +40,12 @@ async def register(
         email=user.email,
         password=PasswordManager.hash_password(user.password),
     )
-    db.add(db_user)
-    await db.flush()
+    try:
+        db.add(db_user)
+        await db.flush()
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=400, detail="Error while registering")
 
     code_object = EmailVerificationCode(
         fk_user_id=db_user.id,
@@ -68,8 +72,10 @@ async def verify(
     code: str | None = None,
     db: AsyncSession = Depends(DatabaseMiddleware.get_session),
 ):
+    invalid_request_exception = HTTPException(status_code=400, detail="Invalid request")
+
     if code is None:
-        return {"message": "Invalid request"}
+        raise invalid_request_exception
 
     stmt = (
         sa.select(EmailVerificationCode)
@@ -83,11 +89,11 @@ async def verify(
 
     if user_code is None:
         logging.info(f"Code {code} not found")
-        return {"message": "Invalid request"}
+        raise invalid_request_exception
 
     if user_code.used_at is not None:
         logging.info(f"Code {code} already used_at {user_code.used_at}")
-        return {"message": "Invalid request"}
+        raise invalid_request_exception
 
     user_code.used_at = sa.func.now()
     user_code.user.verified = True
