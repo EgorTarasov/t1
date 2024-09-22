@@ -1,6 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
-import time
+import datetime as dt
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from src.config import app_config, Config
@@ -14,6 +14,7 @@ from src.email.service import EmailClient
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logging.info(dt.datetime.now().astimezone().strftime("%Y-%m-%dT%H:%M:%S %z"))
     db = Database(app_config.get().postgres_dsn)
     if not await db.check_connection():
         raise ValueError("Database is not available")
@@ -27,6 +28,7 @@ async def lifespan(app: FastAPI):
 
 
 def create_app() -> FastAPI:
+
     email_config.set(EmailConfig())  # type: ignore
     app_config.set(Config())  # type: ignore
 

@@ -37,6 +37,8 @@ services:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
       - local.env
+    environment:
+      - TZ=Europe/Moscow
     ports:
       - 5432:5432
 
@@ -45,6 +47,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    restart: always
     depends_on:
       - db
       - traefik
@@ -57,4 +60,5 @@ services:
     env_file:
       - local.env
     environment:
-      - POSTGRES_HOST:db
+      - TZ=Europe/Moscow
+      - DOCKER_MODE=True

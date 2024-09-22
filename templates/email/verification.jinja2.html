@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Your Email</title>
+</head>
+
+<body>
+    <h1>Email Verification</h1>
+    <p>Dear {{ user_name }},</p>
+    <p>Thank you for signing up. To complete your registration, please click the link below to verify your email
+        address:</p>
+    <a href="{{ verification_url }}?code={{ verification_code }}">{{ verification_url }}?code={{ verification_code
+        }}</a>
+    <p>If you did not sign up for this account, please disregard this email.</p>
+    <p>Best regards,<br>Your Company</p>
+</body>
+
+</html>

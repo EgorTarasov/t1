@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
 
 class UserCreate(BaseModel):
@@ -34,3 +34,21 @@ class EmailVerificationCodeDto(BaseModel):
 
     email: EmailStr
     code: str = Field("", min_length=128, max_length=128)
+
+
+class AccessToken(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    access_token: str
+    token_type: str = Field("Bearer")
+
+
+class EmailRecovery(BaseModel):
+    email: EmailStr = Field(
+        "@gmail.com", title="email", description="электронная почта"
+    )
+
+
+class EmailRecoveryNewPassword(BaseModel):
+    code: str = Field("", min_length=6, max_length=6)
+    new_password: str = Field("test12345678", min_length=12)
