@@ -19,3 +19,4 @@ class VacancyCreate(BaseModel):
     experience_from: int = Field(3, title="Опыт от")
     experience_to: int = Field(6, title="Опыт до")
     type_of_employment: str = Field("Полная занятость", title="Тип занятости")
+    key_skills: list = Field("Python", title="Ключевые навыки")

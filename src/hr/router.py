@@ -46,6 +46,7 @@ async def set_new(
         experience_from=vacancy.experience_from,
         experience_to=vacancy.experience_to,
         type_of_employment=vacancy.type_of_employment,
+        key_skills=vacancy.key_skills,
     )
     try:
         db.add(db_vacancy)
