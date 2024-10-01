@@ -10,6 +10,7 @@ from src.email.dependencies import EmailClientMiddleware
 from src.auth.router import router as auth_router
 from src.email.config import email_config, EmailConfig
 from src.email.service import EmailClient
+from src.hr.router import router as vacancy_router
 
 
 @asynccontextmanager
@@ -53,7 +54,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(auth_router)
-
+    app.include_router(vacancy_router)
     return app
 
 
