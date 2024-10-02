@@ -1,5 +1,6 @@
 volumes:
   postgres_data: {}
+  redis_data: {}
 
 services:
   watchtower:
@@ -41,7 +42,14 @@ services:
       - TZ=Europe/Moscow
     ports:
       - 5432:5432
-
+  redis:
+    image: redis:7.25-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data:/data
+    environment:
+      - TZ=Europe/Moscow
   api:
     image: ghrc.io/egortarasov/t1/api:dev
     build:
