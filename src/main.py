@@ -11,6 +11,7 @@ from src.auth.router import router as auth_router
 from src.email.config import email_config, EmailConfig
 from src.email.service import EmailClient
 from src.hr.router import router as vacancy_router
+from fastapi_pagination import add_pagination
 
 
 @asynccontextmanager
@@ -45,7 +46,6 @@ def create_app() -> FastAPI:
         description="Rest api for frontend Application",
         lifespan=lifespan,
     )
-
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -55,6 +55,7 @@ def create_app() -> FastAPI:
     )
     app.include_router(auth_router)
     app.include_router(vacancy_router)
+    add_pagination(app)
     return app
 
 

@@ -33,3 +33,6 @@ class VacancyDto(BaseModel):
     experience_to: int
     type_of_employment: str
     key_skills: list
+
+    class Config:
+        orm_mode = True

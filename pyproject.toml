@@ -16,6 +16,7 @@ python-jose = "^3.3.0"
 passlib = "^1.7.4"
 pyotp = "^2.9.0"
 celery = {extras = ["redis"], version = "^5.4.0"}
+fastapi-pagination = "^0.12.29"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.2"

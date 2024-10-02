@@ -6,8 +6,8 @@ from .models import Vacancy
 from src.serializers.vacancy import db_vacancy_to_vacancy_dto
 from sqlalchemy.ext.asyncio import AsyncSession
 import sqlalchemy as sa
-from sqlalchemy import orm
-import json
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 
 router = APIRouter(
     prefix="/vacancies",
@@ -15,7 +15,7 @@ router = APIRouter(
 
 
 @router.get("/refresh")
-async def return_active(
+async def update_active(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(DatabaseMiddleware.get_session),
 ):
@@ -30,6 +30,14 @@ async def return_active(
     """
 
     return {"message": "Vacancies"}
+
+
+@router.get("/active", response_model=Page[VacancyDto])
+async def return_active(
+    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+):
+    stmt = sa.select(Vacancy)
+    return await paginate(db, stmt)
 
 
 @router.post("/new")
