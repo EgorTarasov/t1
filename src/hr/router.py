@@ -1,25 +1,26 @@
 import logging
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 from src.dependencies import DatabaseMiddleware
-from .schemas import VacancyCreate
+from .schemas import VacancyCreate, VacancyDto
 from .models import Vacancy
-
+from src.serializers.vacancy import db_vacancy_to_vacancy_dto
 from sqlalchemy.ext.asyncio import AsyncSession
 import sqlalchemy as sa
 from sqlalchemy import orm
+import json
 
 router = APIRouter(
     prefix="/vacancies",
 )
 
 
-@router.get("/all/active")
+@router.get("/refresh")
 async def return_active(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(DatabaseMiddleware.get_session),
 ):
     """
-    Returns all active vacancies in the database.
+    Updates db of all active vacancies and returns all active vacancies in the database.
 
     Args:
         db (Session): The database session dependency.
@@ -36,6 +37,17 @@ async def set_new(
     vacancy: VacancyCreate,
     db: AsyncSession = Depends(DatabaseMiddleware.get_session),
 ):
+    """
+    Returns all active vacancies in the database.
+
+    Args:
+        vacancy (VacancyCreate): Vacancy information to create.
+        db (Session): The database session dependency.
+
+    Returns:
+        dict: A message indicating that vacancy has been registered.
+    """
+
     db_vacancy = Vacancy(
         name=vacancy.name,
         source=str(vacancy.source),
@@ -55,3 +67,25 @@ async def set_new(
         logging.error(e)
         raise HTTPException(status_code=400, detail="Error while adding vacancy")
     await db.commit()
+    return {"message": "Vacancy created"}
+
+
+@router.get("/id/{vacancy_id}", response_model=VacancyDto)
+async def get_by_id(
+    vacancy_id: int,
+    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+):
+    """
+    Returns vacancy by id in the database.
+
+    Args:
+        vacancy_id (Integer): Vacancy id in database.
+        db (Session): The database session dependency.
+
+    Returns:
+        JSON: vacancy information in json
+    """
+
+    stmt = sa.select(Vacancy).where(Vacancy.id == vacancy_id)
+    db_vacancy = (await db.execute(stmt)).scalar()
+    return db_vacancy_to_vacancy_dto(db_vacancy)
