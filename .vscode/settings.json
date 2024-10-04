@@ -1,0 +1,15 @@
+{
+    "python.poetryPath": "poetry",
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "localhost-dev",
+            "database": "dev",
+            "username": "postgre",
+            "password": "postgre-pass"
+        }
+    ]
+}
