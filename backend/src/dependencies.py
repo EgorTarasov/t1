@@ -1,22 +1,14 @@
-import glob
 import typing as tp
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.database import Database
+from src.database import db
 
 
-class DatabaseMiddleware:
-    db: tp.Optional[Database] = None
-
-    @staticmethod
-    def set_db(database: Database):
-        DatabaseMiddleware.db = database
-
-    @staticmethod
-    async def get_session() -> tp.AsyncGenerator[AsyncSession, None]:
-        if DatabaseMiddleware.db is None:
-            raise ValueError("Database is not initialized")
-        else:
-            async with DatabaseMiddleware.db.session_factory() as session:
-                yield session
+async def get_db() -> tp.AsyncGenerator[AsyncSession, None]:
+    """Dependency injection for sqlalchemy async session"""
+    if db is None:
+        raise ValueError("Database is not initialized")
+    else:
+        async with db.session_factory() as session:
+            yield session

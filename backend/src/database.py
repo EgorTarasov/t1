@@ -9,6 +9,19 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
+from sqlalchemy.orm import DeclarativeBase, declared_attr
+
+from src.config import app_config
+
+
+class Base(DeclarativeBase):
+    __abstract__ = True
+
+    @declared_attr.directive
+    def __tablename__(self) -> str:
+        name = self.__name__[0].lower() + self.__name__[1:]
+        name = "".join(c if c.islower() else f"_{c.lower()}" for c in name)
+        return f"{name}s"
 
 
 class Database:
@@ -51,3 +64,6 @@ class Database:
             raise
         finally:
             await session.close()
+
+
+db: Database = Database(str(app_config.postgres_dsn))

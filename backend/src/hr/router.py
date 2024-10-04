@@ -1,24 +1,23 @@
 import logging
 
-import sqlalchemy as sa
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
-from sqlalchemy import orm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.dependencies import DatabaseMiddleware
+from src.dependencies import get_db
 
 from .models import Vacancy
 from .schemas import VacancyCreate
 
 router = APIRouter(
     prefix="/vacancies",
+    tags=["vacancies"],
 )
 
 
 @router.get("/all/active")
 async def return_active(
     background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Returns all active vacancies in the database.
@@ -36,7 +35,7 @@ async def return_active(
 @router.post("/new")
 async def set_new(
     vacancy: VacancyCreate,
-    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+    db: AsyncSession = Depends(get_db),
 ):
     db_vacancy = Vacancy(
         name=vacancy.name,

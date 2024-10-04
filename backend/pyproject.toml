@@ -30,6 +30,7 @@ httpx-ws = "^0.6.0"
 httpx-sse = "^0.4.0"
 isort = "^5.13.2"
 pylint = "^3.3.1"
+sqlalchemy2-stubs = "^0.0.2a38"
 
 [build-system]
 requires = ["poetry-core"]

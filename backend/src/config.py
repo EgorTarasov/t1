@@ -7,7 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Config(BaseSettings):
     model_config = SettingsConfigDict(
-        case_sensitive=False,
+        case_sensitive=False, env_file=".env", extra="ignore"
     )
     docker_mode: bool = False
 
@@ -19,29 +19,11 @@ class Config(BaseSettings):
 
     domain: str = "http://localhost:8000"
 
-    vk_client_id: str
-    vk_secure_token: str
-    vk_service_token: str
-    vk_redirect_uri: str = "http://localhost:5173/login"
-
-    vk_token_url: str = (
-        "https://oauth.vk.com/access_token?client_id={client_id}&client_secret={vk_secure_token}&redirect_uri={redirect_uri}&code={code}"
-    )
-    vk_base_url: str = "https://api.vk.ru/method"
-
-    @property
-    def logging_level(self):
-        levels = {
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL,
-        }
-        return levels.get(self.logging.upper(), logging.INFO)
-
 
 class WorkerConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        case_sensitive=False, env_file=".env", extra="ignore"
+    )
     redis_dsn: RedisDsn = Field("redis://localhost:6379/0")
     redis_db: int = 0
 
@@ -52,4 +34,4 @@ class WorkerConfig(BaseSettings):
     llm_chat_url: str = ""
 
 
-app_config: ContextVar[Config] = ContextVar("config")
+app_config: Config = Config()  # type: ignore

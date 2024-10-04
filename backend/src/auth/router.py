@@ -1,24 +1,36 @@
-import logging
+import datetime as dt
 import typing as tp
 
 import pyotp
 import sqlalchemy as sa
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from loguru import logger
 from sqlalchemy import orm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.dependencies import DatabaseMiddleware
-from src.email.dependencies import EmailClientMiddleware
+from src.dependencies import get_db
+from src.email.dependencies import get_email
 from src.email.service import EmailClient
 
 from .models import EmailRecoveryCode, EmailVerificationCode, User
-from .schemas import (AccessToken, EmailRecovery, EmailRecoveryNewPassword,
-                      UserCreate, UserLogin)
-from .service import (CodeManager, JWTEncoder, PasswordManager,
-                      send_recovery_code, send_verification_code)
+from .schemas import (
+    AccessToken,
+    EmailRecovery,
+    EmailRecoveryNewPassword,
+    UserCreate,
+    UserLogin,
+)
+from .service import (
+    CodeManager,
+    JWTEncoder,
+    PasswordManager,
+    send_recovery_code,
+    send_verification_code,
+)
 
 router = APIRouter(
     prefix="/auth",
+    tags=["auth"],
 )
 
 
@@ -26,8 +38,8 @@ router = APIRouter(
 async def register(
     user: UserCreate,
     background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
-    email_client: EmailClient = Depends(EmailClientMiddleware.get_client),
+    db: AsyncSession = Depends(get_db),
+    email_client: EmailClient = Depends(get_email),
 ):
     """
     Registers a new user in the database.
@@ -51,7 +63,7 @@ async def register(
         db.add(db_user)
         await db.flush()
     except Exception as e:
-        logging.error(e)
+        logger.error(e)
         raise HTTPException(status_code=400, detail="Error while registering")
 
     code_object = EmailVerificationCode(
@@ -80,7 +92,7 @@ async def register(
 @router.get("/email/verify")
 async def verify(
     code: str | None = None,
-    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+    db: AsyncSession = Depends(get_db),
 ):
     invalid_request_exception = HTTPException(status_code=400, detail="Invalid request")
 
@@ -98,11 +110,11 @@ async def verify(
     ).scalar_one_or_none()
 
     if user_code is None:
-        logging.info(f"Code {code} not found")
+        logger.info(f"Code {code} not found")
         raise invalid_request_exception
 
     if user_code.used_at is not None:
-        logging.info(f"Code {code} already used_at {user_code.used_at}")
+        logger.info(f"Code {code} already used_at {user_code.used_at}")
         raise invalid_request_exception
 
     user_code.used_at = sa.func.now()
@@ -110,7 +122,7 @@ async def verify(
     try:
         await db.commit()
     except Exception as e:
-        logging.error(e)
+        logger.error(e)
         raise HTTPException(status_code=400, detail="Error while verifying user")
 
     return AccessToken(
@@ -126,7 +138,7 @@ async def verify(
 @router.post("/email/login")
 async def login(
     payload: UserLogin,
-    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+    db: AsyncSession = Depends(get_db),
 ):
 
     stmt = sa.select(User).where(User.email == payload.email)
@@ -150,8 +162,8 @@ async def login(
 async def logout(
     payload: EmailRecovery,
     background_tasks: BackgroundTasks,
-    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
-    email_client: EmailClient = Depends(EmailClientMiddleware.get_client),
+    db: AsyncSession = Depends(get_db),
+    email_client: EmailClient = Depends(get_email),
 ):
 
     # 1. Create recovery code
@@ -181,7 +193,7 @@ async def logout(
 @router.post("/email/reset")
 async def reset(
     payload: EmailRecoveryNewPassword,
-    db: AsyncSession = Depends(DatabaseMiddleware.get_session),
+    db: AsyncSession = Depends(get_db),
 ):
     invalid_credentials_exception = HTTPException(
         status_code=401, detail="Invalid credentials"
@@ -194,21 +206,21 @@ async def reset(
     )
     code: EmailRecoveryCode | None = (await db.execute(stmt)).scalar_one_or_none()
     if code is None:
-        logging.info(f"Code {payload.code} not found")
+        logger.info(f"Code {payload.code} not found")
         raise invalid_credentials_exception
 
     if code.used_at is not None:
-        logging.info(f"Code {payload.code} already used_at {code.used_at}")
+        logger.info(f"Code {payload.code} already used_at {code.used_at}")
         raise invalid_credentials_exception
 
-    code.used_at = sa.func.now()
+    code.used_at = dt.datetime.now()
 
     if code.user is None:
-        logging.info(f"User not found for code {payload.code}")
+        logger.info(f"User not found for code {payload.code}")
         raise invalid_credentials_exception
 
     code.user.password = PasswordManager.hash_password(payload.new_password)
-    code.used_at = sa.func.now()
+    code.used_at = dt.datetime.now()
     await db.commit()
 
     return {"message": "Password reset"}

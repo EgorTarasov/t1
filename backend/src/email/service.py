@@ -1,10 +1,12 @@
-import logging
 import pathlib
 import smtplib
 import typing as tp
 from email.mime.text import MIMEText
 
 import jinja2
+from loguru import logger
+
+from src.email.config import email_config
 
 
 class EmailData(tp.TypedDict):
@@ -46,19 +48,19 @@ class EmailClient:
         )
         if len(self._templates.list_templates()) == 0:
             raise ValueError("No templates found")
-        logging.info("Email client initialized")
+        logger.info("Email client initialized")
 
     def _create_connection(self) -> smtplib.SMTP_SSL:
 
         server = smtplib.SMTP_SSL(self._host, self._port)
         try:
             reply = server.login(self.__user, self.__password)
-            logging.debug(reply)
+            logger.debug(reply)
         except Exception as e:
-            logging.error(f"Can't connect to mail server: {e}")
+            logger.error(f"Can't connect to mail server: {e}")
             raise e
         finally:
-            logging.info("Connected to mail server")
+            logger.info("Connected to mail server")
         return server
 
     def send_mailing(
@@ -68,10 +70,6 @@ class EmailClient:
         template: str,
         data: dict[str, tp.Any],
     ) -> None:
-        server = self._create_connection()
-        logging.debug(
-            f"sending, to: {to}, subject: {subject}, template: {template}, data: {data}"
-        )
         """Отправка письма через SMTP
 
         Args:
@@ -83,6 +81,11 @@ class EmailClient:
         Raises:
             e: Ошибка создание шаблона / соединения с сервером
         """
+        server = self._create_connection()
+        logger.debug(
+            f"sending, to: {to}, subject: {subject}, template: {template}, data: {data}"
+        )
+
         try:
             msg = MIMEText(
                 self._templates.get_template(f"{template}.html").render(**data),
@@ -92,9 +95,12 @@ class EmailClient:
             msg["Subject"] = subject
             send_errs = server.sendmail(self.__user, to, msg.as_string())
             if send_errs:
-                logging.error(send_errs)
+                logger.error(send_errs)
         except Exception as e:
-            logging.error(f"Can't send email: {e}")
+            logger.error(f"Can't send email: {e}")
 
             raise e
         server.close()
+
+
+email_client = EmailClient(**dict(email_config))

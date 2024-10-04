@@ -4,10 +4,11 @@ from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
+
 from alembic import context
 from alembic.config import Config
-from src.models import Base
 from src.config import Config as AppConfig
+from src.database import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -32,7 +33,7 @@ target_metadata = Base.metadata
 
 def _get_postgres_dsn() -> str:
     settings: AppConfig = AppConfig()  # type:ignore
-    return settings.postgres_dsn
+    return str(settings.postgres_dsn)
 
 
 def run_migrations_offline() -> None:

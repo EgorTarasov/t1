@@ -1,4 +1,4 @@
-from src.auth.models import *
-from src.hr.models import *
+from .database import Base
 
-from .models import Base
+from .hr import models  # pylint: disable=unused-import  # noqa
+from .auth import models  # pylint: disable=unused-import  # noqa

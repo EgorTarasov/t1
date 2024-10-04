@@ -1,18 +1,7 @@
 from datetime import datetime
 
 import sqlalchemy as sa
-from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
-                            mapped_column)
-
-
-class Base(DeclarativeBase):
-    __abstract__ = True
-
-    @declared_attr.directive
-    def __tablename__(cls) -> str:
-        name = cls.__name__[0].lower() + cls.__name__[1:]
-        name = "".join(c if c.islower() else f"_{c.lower()}" for c in name)
-        return f"{name}s"
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class TimestampMixin:

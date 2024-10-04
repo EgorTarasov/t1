@@ -3,7 +3,7 @@ from datetime import datetime
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src import Base
+from src.database import Base
 from src.models import TimestampMixin
 
 
@@ -52,6 +52,6 @@ class EmailRecoveryCode(Base):
     code: Mapped[str] = mapped_column(sa.String(6))
     fk_user_id: Mapped[int] = mapped_column(sa.ForeignKey("users.id"), primary_key=True)
     user: Mapped[User] = relationship("User")
-    created_at: Mapped[datetime] = mapped_column(server_default=sa.func.now())
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now())
     # change to timestamp when used
     used_at: Mapped[datetime] = mapped_column(default=None, nullable=True)
