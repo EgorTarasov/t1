@@ -1,7 +1,8 @@
-from src import Base
-from sqlalchemy.orm import relationship, mapped_column, Mapped
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from src import Base
 
 
 class Vacancy(Base):

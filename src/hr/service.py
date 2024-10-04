@@ -1,8 +1,8 @@
-import httpx
 import json
-import typing as tp
 import re
+import typing as tp
 
+import httpx
 
 T1_EMPLOYER_ID = 4649269
 DUCK_DUCK_GO_URL = "https://duckduckgo.com/duckchat/v1/chat"

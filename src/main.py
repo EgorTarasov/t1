@@ -1,43 +1,39 @@
-import logging
+from loguru import logger
 from contextlib import asynccontextmanager
-import datetime as dt
-from fastapi import FastAPI, Request
+
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from src.config import app_config, Config
+
+from src.auth.router import router as auth_router
+from src.config import Config, app_config
 from src.database import Database
 from src.dependencies import DatabaseMiddleware
+from src.email.config import EmailConfig, email_config
 from src.email.dependencies import EmailClientMiddleware
-from src.auth.router import router as auth_router
-from src.email.config import email_config, EmailConfig
 from src.email.service import EmailClient
 from src.hr.router import router as vacancy_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logging.info(dt.datetime.now().astimezone().strftime("%Y-%m-%dT%H:%M:%S %z"))
-    db = Database(app_config.get().postgres_dsn)
+    logger.info("connecting to db")
+
+    db = Database(str(app_config.get().postgres_dsn))
     if not await db.check_connection():
         raise ValueError("Database is not available")
     else:
-        logging.info("connected to db")
+        logger.info("connected to db")
     email_client = EmailClient(**dict(email_config.get()))
     DatabaseMiddleware.set_db(db)
     EmailClientMiddleware.set_email_client(email_client)
+    logger.info("starting app")
     yield None
-    # TODO: close db connection
 
 
 def create_app() -> FastAPI:
 
     email_config.set(EmailConfig())  # type: ignore
     app_config.set(Config())  # type: ignore
-
-    logging.basicConfig(
-        level=app_config.get().logging_level,
-        format="%(asctime)s %(levelname)s %(name)s %(message)s",
-        filemode="w",
-    )
 
     app = FastAPI(
         title="Динозаврики мисис",
@@ -58,4 +54,14 @@ def create_app() -> FastAPI:
     return app
 
 
-app: FastAPI = create_app()
+if __name__ == "__main__":
+    try:
+        import uvicorn
+
+        uvicorn.run(
+            create_app(),
+            host="0.0.0.0",
+        )
+        app: FastAPI = create_app()
+    except ImportError:
+        print("uvicorn is not installed")

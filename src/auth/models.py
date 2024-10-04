@@ -1,8 +1,10 @@
+from datetime import datetime
+
+import sqlalchemy as sa
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from src import Base
 from src.models import TimestampMixin
-from sqlalchemy.orm import relationship, mapped_column, Mapped
-import sqlalchemy as sa
-from datetime import datetime
 
 
 class User(Base, TimestampMixin):

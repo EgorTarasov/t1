@@ -1,5 +1,6 @@
-from .service import EmailClient
 import typing as tp
+
+from .service import EmailClient
 
 
 class EmailClientMiddleware:

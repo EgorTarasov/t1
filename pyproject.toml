@@ -16,6 +16,7 @@ python-jose = "^3.3.0"
 passlib = "^1.7.4"
 pyotp = "^2.9.0"
 celery = {extras = ["redis"], version = "^5.4.0"}
+loguru = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.2"
@@ -27,6 +28,8 @@ ipykernel = "^6.29.5"
 pydantic = "^2.9.2"
 httpx-ws = "^0.6.0"
 httpx-sse = "^0.4.0"
+isort = "^5.13.2"
+pylint = "^3.3.1"
 
 [build-system]
 requires = ["poetry-core"]

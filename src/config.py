@@ -1,7 +1,8 @@
-import typing as tp
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from contextvars import ContextVar
 import logging
+from contextvars import ContextVar
+
+from pydantic import Field, PostgresDsn, RedisDsn
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Config(BaseSettings):
@@ -12,12 +13,9 @@ class Config(BaseSettings):
 
     logging: str = "DEBUG"
 
-    postgres_host: str
-    postgres_port: int = 5432
-    postgres_db: str
-
-    postgres_user: str
-    postgres_password: str
+    postgres_dsn: PostgresDsn = Field(
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/postgres"
+    )
 
     domain: str = "http://localhost:8000"
 
@@ -32,12 +30,6 @@ class Config(BaseSettings):
     vk_base_url: str = "https://api.vk.ru/method"
 
     @property
-    def postgres_dsn(self) -> str:
-        if self.docker_mode:
-            return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@db:{self.postgres_port}/{self.postgres_db}"
-        return f"postgresql+asyncpg://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
-
-    @property
     def logging_level(self):
         levels = {
             "DEBUG": logging.DEBUG,
@@ -47,6 +39,17 @@ class Config(BaseSettings):
             "CRITICAL": logging.CRITICAL,
         }
         return levels.get(self.logging.upper(), logging.INFO)
+
+
+class WorkerConfig(BaseSettings):
+    redis_dsn: RedisDsn = Field("redis://localhost:6379/0")
+    redis_db: int = 0
+
+    postgres_dsn: PostgresDsn = Field(
+        "postgresql+asyncpg://postgres:postgres@localhost:5432/postgres"
+    )
+
+    llm_chat_url: str = ""
 
 
 app_config: ContextVar[Config] = ContextVar("config")

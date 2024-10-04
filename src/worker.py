@@ -1,20 +1,23 @@
 from celery import Celery
-from src.dependencies import DatabaseMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Depends
-from src.email.dependencies import EmailClientMiddleware
+
+from src.config import WorkerConfig
+from src.database import Database
+from src.email.config import EmailConfig
 from src.email.service import EmailClient
-import typing as tp
-from src.hr.service import (
-    HHApi,
-    LLM,
+from src.hr.service import LLM, HHApi
+
+worker_config = WorkerConfig()  # type: ignore
+email_config = EmailConfig()  # type: ignore
+pg: Database = Database(str(worker_config.postgres_dsn))
+email: EmailClient = EmailClient(
+    email_config.mail_user,
+    email_config.mail_password,
+    email_config.host,
+    email_config.port,
 )
-
-
-app = Celery()
-db: AsyncSession = Depends(DatabaseMiddleware.get_session)
-app.conf.broker_url = "redis://10.0.1.80:6379/0"
-app.conf.timezone = "UTC+3"
+app: Celery = Celery(broker=str(worker_config.redis_dsn))
+hh_api = HHApi()
+llm = LLM()
 
 
 @app.task
@@ -23,9 +26,8 @@ def send_vacancy_mail(
     subject: str,
     user_name: str,
     email: str,
-    client: EmailClient = Depends(EmailClientMiddleware.get_client),
 ) -> None:
 
     template = LLM.prompt("email", description)
-
+    print(template)
     # client.send_mailing(email, subject, template)

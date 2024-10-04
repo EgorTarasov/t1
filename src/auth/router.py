@@ -1,28 +1,21 @@
-import typing as tp
 import logging
-from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
+import typing as tp
+
+import pyotp
+import sqlalchemy as sa
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from sqlalchemy import orm
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from src.dependencies import DatabaseMiddleware
 from src.email.dependencies import EmailClientMiddleware
-from .models import User, EmailVerificationCode, EmailRecoveryCode
-from .schemas import (
-    UserCreate,
-    UserLogin,
-    AccessToken,
-    EmailRecovery,
-    EmailRecoveryNewPassword,
-)
-import pyotp
-from .service import (
-    JWTEncoder,
-    PasswordManager,
-    CodeManager,
-    send_recovery_code,
-    send_verification_code,
-)
-from sqlalchemy.ext.asyncio import AsyncSession
-import sqlalchemy as sa
-from sqlalchemy import orm
 from src.email.service import EmailClient
+
+from .models import EmailRecoveryCode, EmailVerificationCode, User
+from .schemas import (AccessToken, EmailRecovery, EmailRecoveryNewPassword,
+                      UserCreate, UserLogin)
+from .service import (CodeManager, JWTEncoder, PasswordManager,
+                      send_recovery_code, send_verification_code)
 
 router = APIRouter(
     prefix="/auth",

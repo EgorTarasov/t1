@@ -1,9 +1,9 @@
 import glob
 import typing as tp
 
-from src.database import Database
-
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.database import Database
 
 
 class DatabaseMiddleware:

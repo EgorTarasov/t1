@@ -1,12 +1,14 @@
-import typing as tp
-from passlib.context import CryptContext  # type: ignore
-import hashlib
 import datetime as dt
+import hashlib
+import typing as tp
 from typing import NamedTuple
-from jose import jwt
-from src.email.service import EmailClient
-from src.config import app_config
+
 import pyotp
+from jose import jwt
+from passlib.context import CryptContext  # type: ignore
+
+from src.config import app_config
+from src.email.service import EmailClient
 
 
 class UserTokenData(NamedTuple):

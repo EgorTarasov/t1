@@ -3,35 +3,8 @@ volumes:
   redis_data: {}
 
 services:
-  watchtower:
-    image: containrrr/watchtower
-    restart: always
-    environment:
-      WATCHTOWER_LABEL_ENABLE: true
-      WATCHTOWER_ROLLING_RESTART: true
-      REPO_USER:  ${DOCKER_USERNAME}
-      REPO_PASS:  ${DOCKER_PASSWORD}
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30
-
-  traefik:
-    image: "traefik:v3.1"
-    container_name: "traefik"
-    restart: always
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entryPoints.web.address=:80"
-    ports:
-      - "80:80"
-      - "8080:8080"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-
   db:
-    image: postgres:16
+    image: "postgres:16"
     container_name: db
     volumes:
       - postgres_data:/var/lib/postgresql/data
@@ -43,7 +16,7 @@ services:
     ports:
       - 5432:5432
   redis:
-    image: redis:7.25-alpine
+    image: "redis:7.2.5-alpine"
     ports:
       - 6379:6379
     volumes:
@@ -56,15 +29,12 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
+    command: python3 -m src.main.py
+    ports:
+      - 8000:8000
     depends_on:
       - db
-      - traefik
-    labels:
-      - "traefik.enable=true"
-      - "com.centurylinklabs.watchtower.enable=true"
-      - "traefik.http.routers.backend.entrypoints=web"
-      - "traefik.http.routers.api.rule=Host(`localhost`)"
-      - "traefik.http.services.backend.loadbalancer.server.port=8000" # Ensure this port matches the port your backend service listens on
+      - redis
     env_file:
       - local.env
     environment:

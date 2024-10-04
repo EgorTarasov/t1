@@ -1,5 +1,6 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from contextvars import ContextVar
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class EmailConfig(BaseSettings):

@@ -1,9 +1,10 @@
-import smtplib
-import pathlib
-import jinja2
 import logging
-from email.mime.text import MIMEText
+import pathlib
+import smtplib
 import typing as tp
+from email.mime.text import MIMEText
+
+import jinja2
 
 
 class EmailData(tp.TypedDict):

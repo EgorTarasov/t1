@@ -1,12 +1,14 @@
 import logging
-from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
-from src.dependencies import DatabaseMiddleware
-from .schemas import VacancyCreate
-from .models import Vacancy
 
-from sqlalchemy.ext.asyncio import AsyncSession
 import sqlalchemy as sa
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlalchemy import orm
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.dependencies import DatabaseMiddleware
+
+from .models import Vacancy
+from .schemas import VacancyCreate
 
 router = APIRouter(
     prefix="/vacancies",
