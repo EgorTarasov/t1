@@ -91,11 +91,18 @@ async def register(
     )
 
     await db.commit()
+    await db.refresh(db_user, ["id"])
     # TODO: defines response schema
 
     #  TODO: return jwt token
 
-    return {"message": "User registered"}
+    return AccessToken(
+        token_type="Bearer",
+        access_token=JWTEncoder.create_access_token(
+            db_user.id,
+            db_user.role,
+        ),
+    )
 
 
 @router.get("/email/verify")
