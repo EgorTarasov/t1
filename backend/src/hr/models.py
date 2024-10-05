@@ -1,13 +1,13 @@
-import typing as tp
 import datetime as dt
-from enum import unique
 import typing as tp
+from enum import unique
+
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import ARRAY, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.models import TimestampMixin
 from src.database import Base
+from src.models import TimestampMixin
 
 if tp.TYPE_CHECKING:
     from src.auth.models import User

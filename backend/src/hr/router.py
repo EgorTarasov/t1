@@ -1,16 +1,18 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Union
 
-from loguru import logger
-from src.dependencies import get_db
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
-from .models import Vacancy, Skill, VacancySkill
-from .schemas import VacancyCreate, SkillSearchResult, SkillCreate, VacancyDTO
-from typing import Union
-from typing import List
+from fastapi import (APIRouter, BackgroundTasks, Body, Depends, HTTPException,
+                     Query)
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.dependencies import get_db
+
+from .models import Skill, Vacancy, VacancySkill
+from .schemas import SkillCreate, SkillSearchResult, VacancyCreate, VacancyDTO
 
 router = APIRouter(
     prefix="/vacancies",
@@ -176,4 +178,20 @@ async def get_skills(
     return [SkillSearchResult(id=skill.id, name=skill.name) for skill in results]
 
 
+ml = APIRouter(
+    prefix="/ml",
+    tags=["ml"],
+)
+
+
+@ml.post("/resume")
+async def get_resume(
+    payload: str = Body(..., media_type="text/plain"),
+    fast: bool = Query(False, title="Быстрый режим"),
+):
+    """Extract resume data"""
+    return extract_resume_data(payload, fast)
+
+
 router.include_router(skills)
+router.include_router(ml)

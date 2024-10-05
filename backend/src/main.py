@@ -1,17 +1,18 @@
 from contextlib import asynccontextmanager
 
+import openai
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_pagination import add_pagination
 from loguru import logger
 
 from src.config import Config, app_config
 from src.database import db
 from src.email.config import EmailConfig, email_config
+from src.hr.config import hr_config
 from src.hr.router import router as vacancy_router
 
 from .auth.router import router as auth_router
-
-from fastapi_pagination import add_pagination
 
 
 @asynccontextmanager
@@ -23,6 +24,8 @@ async def lifespan(_app: FastAPI):
         raise ValueError("Database is not available")
     else:
         logger.info("connected to db")
+
+    openai.api_key = hr_config.openai_api_key
 
     logger.info("starting app")
     yield None
