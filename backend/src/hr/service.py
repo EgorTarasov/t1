@@ -3,6 +3,7 @@ import re
 import typing as tp
 
 import httpx
+import openai
 
 T1_EMPLOYER_ID = 4649269
 DUCK_DUCK_GO_URL = "https://duckduckgo.com/duckchat/v1/chat"
@@ -487,3 +488,170 @@ class LLM:
                 response = self.__parse_html_response(response)
 
         return response
+
+
+def extract_resume_data(resume_text: str, fast: bool = True):
+    model: str = "gpt-4o-mini"
+    if not fast:
+        model = "gpt-4-0613"
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=[
+            {
+                "role": "system",
+                "content": "You are a helpful assistant that extracts structured data from resumes.",
+            },
+            {
+                "role": "user",
+                "content": f"Please extract the resume data from the following text: {resume_text}",
+            },
+        ],
+        functions=[
+            {
+                "name": "extract_resume_data",
+                "description": "Extracts structured resume data from an unstructured resume text.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "birth_date": {
+                            "type": "string",
+                            "description": "The birth date of the individual.",
+                        },
+                        "gender": {
+                            "type": "string",
+                            "description": "The gender of the individual.",
+                        },
+                        "area": {
+                            "type": "string",
+                            "description": "The area or city of the individual.",
+                        },
+                        "title": {
+                            "type": "string",
+                            "description": "The job title of the individual.",
+                        },
+                        "specialization": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The specialization name.",
+                                    },
+                                    "profarea_name": {
+                                        "type": "string",
+                                        "description": "The professional area name.",
+                                    },
+                                },
+                            },
+                        },
+                        "salary": {
+                            "type": "object",
+                            "properties": {
+                                "amount": {
+                                    "type": ["number", "null"],
+                                    "description": "The salary amount.",
+                                },
+                                "currency": {
+                                    "type": ["string", "null"],
+                                    "description": "The salary currency.",
+                                },
+                            },
+                        },
+                        "education_level": {
+                            "type": "string",
+                            "description": "The education level of the individual.",
+                        },
+                        "education": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "year": {
+                                        "type": "number",
+                                        "description": "The year of graduation.",
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The name of the educational institution.",
+                                    },
+                                    "organization": {
+                                        "type": "string",
+                                        "description": "The department or faculty.",
+                                    },
+                                },
+                            },
+                        },
+                        "language": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "description": "The language name.",
+                                    },
+                                    "level": {
+                                        "type": "string",
+                                        "description": "The proficiency level.",
+                                    },
+                                },
+                            },
+                        },
+                        "experience": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "start": {
+                                        "type": "string",
+                                        "description": "The start date of the experience.",
+                                    },
+                                    "end": {
+                                        "type": ["string", "null"],
+                                        "description": "The end date of the experience.",
+                                    },
+                                    "position": {
+                                        "type": "string",
+                                        "description": "The position held during this experience.",
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "The description of the work performed.",
+                                    },
+                                },
+                            },
+                        },
+                        "skills": {
+                            "type": "string",
+                            "description": "The skills of the individual.",
+                        },
+                    },
+                },
+            }
+        ],
+        function_call="auto",
+    )
+
+    extracted_data = json.loads(
+        response["choices"][0]["message"]["function_call"]["arguments"]
+    )
+
+    complete_data = {
+        "birth_date": extracted_data.get("birth_date", None),
+        "gender": extracted_data.get("gender", None),
+        "area": extracted_data.get("area", None),
+        "title": extracted_data.get("title", None),
+        "specialization": extracted_data.get("specialization", []),
+        "salary": {
+            "amount": extracted_data.get("salary", {}).get("amount", None),
+            "currency": extracted_data.get("salary", {}).get("currency", None),
+        },
+        "education_level": extracted_data.get("education_level", None),
+        "education": extracted_data.get("education", []),
+        "language": extracted_data.get("language", []),
+        "experience": extracted_data.get("experience", []),
+        "skills": extracted_data.get("skills", None),
+    }
+
+    return complete_data

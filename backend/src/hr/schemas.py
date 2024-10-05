@@ -1,5 +1,6 @@
-import typing as tp
 import datetime as dt
+import typing as tp
+
 from pydantic import BaseModel, ConfigDict, Field
 
 

@@ -1,5 +1,5 @@
-import typing as tp
 import datetime as dt
+import typing as tp
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column, relationship
