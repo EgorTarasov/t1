@@ -6,8 +6,11 @@ export interface DisposableVm {
   dispose(): void;
 }
 
-export const useViewModel = <T extends DisposableVm>(_vm: new () => T): T => {
-  const [vm] = useState(() => new _vm());
+export const useViewModel = <T extends DisposableVm, U extends any[]>(
+  _vm: new (...args: U) => T,
+  ...args: U
+): T => {
+  const [vm] = useState(() => new _vm(...args));
 
   useEffect(() => vm.dispose, [vm]);
 

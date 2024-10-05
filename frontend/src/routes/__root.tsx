@@ -1,7 +1,7 @@
-import { ThemeProvider } from "@/components/hoc/theme-provider";
-import NotFoundPage from "@/components/pages/not-found.page";
+import { ThemeProvider, useTheme } from "@/components/hoc/theme-provider";
 import { LoadingWrapper } from "@/components/ui/loaders/LoadingWrapper";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import NotFoundPage from "@/pages/not-found.page";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import React from "react";
 
@@ -10,21 +10,21 @@ const Toaster = React.lazy(() =>
 );
 
 const Page = () => {
+  const theme = useTheme();
+
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <React.Suspense
-          fallback={
-            <div className="absolute inset-0 flex justify-center items-center">
-              <LoadingWrapper />
-            </div>
-          }
-        >
-          <Outlet />
-          <Toaster richColors />
-        </React.Suspense>
-      </TooltipProvider>
-    </ThemeProvider>
+    <TooltipProvider>
+      <React.Suspense
+        fallback={
+          <div className="absolute inset-0 flex justify-center items-center">
+            <LoadingWrapper />
+          </div>
+        }
+      >
+        <Outlet />
+        <Toaster richColors />
+      </React.Suspense>
+    </TooltipProvider>
   );
 };
 

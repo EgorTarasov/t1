@@ -2,7 +2,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { buildQueryString, Query } from "./buildQueryString";
 
-const baseUrl = import.meta.env.VITE_API_URL || "http://79.174.82.229";
+const baseUrl = import.meta.env.VITE_API_URL || "http://79.174.82.229/api";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Schema = z.ZodType<any, any, any>;

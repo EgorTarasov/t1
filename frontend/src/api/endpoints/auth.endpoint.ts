@@ -21,4 +21,8 @@ export namespace AuthEndpoint {
     api.post("/users/register", v, {
       schema: AuthDto.Token,
     });
+
+  export const test = async () => {
+    api.get("/user");
+  };
 }
