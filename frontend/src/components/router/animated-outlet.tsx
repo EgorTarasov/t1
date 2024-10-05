@@ -23,7 +23,7 @@ export const AnimatedOutlet = forwardRef<HTMLDivElement>((_, ref) => {
   };
 
   return (
-    <motion.div ref={ref} {...transitionProps} className="h-full flex">
+    <motion.div ref={ref} {...transitionProps} className="flex flex-1 h-full">
       <RouterContext.Provider value={renderedContext.current}>
         <Outlet />
       </RouterContext.Provider>

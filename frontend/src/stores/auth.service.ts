@@ -59,7 +59,6 @@ class AuthServiceViewModel {
   logout() {
     this.auth = { state: "anonymous" };
     authToken.remove();
-    throw redirect({ to: "/login" });
   }
 }
 
