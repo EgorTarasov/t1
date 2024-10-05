@@ -48,7 +48,9 @@ export const DataTable = <T,>({
             key={rowIndex}
             onClick={onRowClick ? () => onRowClick(item) : undefined}
             className={
-              onRowClick ? "cursor-pointer hover:bg-gray-100" : undefined
+              onRowClick
+                ? "cursor-pointer hover:bg-slate-100 transition-colors"
+                : undefined
             }
           >
             {columns.map((column, colIndex) => (
