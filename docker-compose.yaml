@@ -26,7 +26,7 @@ services:
   api:
     image: ghcr.io/egortarasov/t1/api:dev
     build:
-      context: .
+      context: backend/.
       dockerfile: Dockerfile
     restart: always
     command: fastapi run src/main.py
@@ -40,3 +40,15 @@ services:
     environment:
       - TZ=Europe/Moscow
       - DOCKER_MODE=True
+  ui:
+    image: ghcr.io/egortarasov/t1/ui:dev
+    build:
+      context: frontend/.
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - stack.env
+    environment:
+      - TZ=Europe/Moscow
