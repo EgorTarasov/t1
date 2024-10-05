@@ -25,12 +25,19 @@ pytest-black = "^0.3.12"
 black = "^24.8.0"
 alembic = "^1.13.2"
 bcrypt = "^4.2.0"
-ipykernel = "^6.29.5"
 pydantic = "^2.9.2"
 httpx-ws = "^0.6.0"
 httpx-sse = "^0.4.0"
 isort = "^5.13.2"
 pylint = "^3.3.1"
+
+
+[tool.poetry.group.notebook.dependencies]
+ipykernel = "^6.29.5"
+chromedriver-autoinstaller = "^0.6.4"
+pandas = "^2.2.3"
+bs4 = "^0.0.2"
+parse-hh-data = "^0.1.14"
 
 [build-system]
 requires = ["poetry-core"]
