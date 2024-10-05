@@ -30,6 +30,8 @@ jobs:
     - name: Build
       uses: docker/build-push-action@v6
       with:
+        context: ./backend/
+        file: ./backend/Dockerfile
         platforms: linux/amd64
         tags: ghcr.io/egortarasov/t1/api:${{ steps.extract_branch.outputs.branch }}
         push: true
