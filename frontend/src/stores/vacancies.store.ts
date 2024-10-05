@@ -3,17 +3,16 @@ import { VacancyDto } from "@/api/models/vacancy.model";
 import { DisposableVm } from "@/utils/vm";
 import { makeAutoObservable } from "mobx";
 
-export class VacancyStore implements DisposableVm {
+export class VacanciesStore implements DisposableVm {
   constructor() {
     makeAutoObservable(this);
-    void this.init();
   }
 
   items: VacancyDto.Item[] = [];
   async init() {
     const res = await VacancyEndpoint.list({
       page: 1,
-      size: 10,
+      size: 100,
     });
     this.items = res.items;
   }

@@ -17,4 +17,9 @@ export namespace VacancyEndpoint {
       search,
       schema: paged(VacancyDto.Item),
     });
+
+  export const getById = (id: string) =>
+    api.get(`/vacancies/${id}`, {
+      schema: VacancyDto.DetailedItem,
+    });
 }
