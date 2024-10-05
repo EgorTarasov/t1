@@ -11,7 +11,7 @@ export const AuthState = observer((x) => {
 
   return (
     <div className="px-6 flex items-center justify-between">
-      <div className="pl-1">
+      <div className="pl-1 break-all">
         <p className="text-sm font-medium">
           {user.first_name} {user.last_name}
         </p>
