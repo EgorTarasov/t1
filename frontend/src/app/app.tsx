@@ -31,10 +31,8 @@ const rootElement = document.getElementById("app")!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
-    <StrictMode>
-      <ThemeProvider defaultTheme="light">
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </StrictMode>,
+    <ThemeProvider defaultTheme="light">
+      <RouterProvider router={router} />
+    </ThemeProvider>,
   );
 }
