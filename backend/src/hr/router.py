@@ -8,7 +8,7 @@ import sqlalchemy.orm as orm
 from .models import Vacancy, Skill, VacancySkill
 from .schemas import VacancyCreate, SkillSearchResult, SkillCreate, VacancyDTO
 from typing import Union
-
+from typing import List
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 
@@ -18,53 +18,46 @@ router = APIRouter(
 )
 
 
-# @router.get("/all/active", response_model=Page[VacancyDTO])
-# async def return_active(
-#     isAppointed: Union[bool, None] = None,
-#     byDateDeadline: Union[bool, None] = None,
-#     byDateCreation: Union[bool, None] = None,
-#     byPriority: Union[str, None] = None,
-#     db: AsyncSession = Depends(get_db),
-# ):
-#     stmt = (
-#         sa.select(Vacancy)
-#         .filter(
-#             False
-#             if isAppointed is None
-#             else (
-#                 Vacancy.recruiter_id != "0"
-#                 if isAppointed
-#                 else Vacancy.recruiter_id == "0"
-#             )
-#         )
-#         .order_by(
-#             False
-#             if byPriority is None
-#             else (Vacancy.priority if byPriority else Vacancy.priority.desc())
-#         )
-#         .order_by(
-#             False
-#             if byPriority is None
-#             else (Vacancy.created_at if byDateCreation else Vacancy.created_at.desc())
-#         )
-#         .order_by(
-#             False
-#             if byPriority is None
-#             else (Vacancy.deadline if byDateDeadline else Vacancy.deadline.desc())
-#         )
-#     )
-#     return await paginate(db, stmt)
-#     """
-#     Returns all active vacancies in the database.
+@router.get("/all/active", response_model=Page[VacancyDTO])
+async def return_active(
+    isAppointed: Union[bool, None] = None,
+    byDateDeadline: Union[bool, None] = None,
+    byDateCreation: Union[bool, None] = None,
+    byPriority: Union[bool, None] = None,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Args:
+        db (Session): The database session dependency.
+        isAppointed(bool): Is the vacancy appointed to recruiter/hr
+        byDateDeadline(bool):
+        byDateCreation(bool):
+        byPriority(bool):
+    Returns:
+        JSON: json containing all vacancies
+    """
 
-#     Args:
-#         db (Session): The database session dependency.
-
-#     Returns:
-#         JSON: json containing all vacancies
-#     """
-
-#     return {"message": "Vacancies"}
+    # TODO: check join statement
+    stmt = sa.select(Vacancy).options(orm.joinedload(Vacancy.vacancy_skills))
+    if isAppointed is not None:
+        stmt = stmt.filter(
+            Vacancy.recruiter_id != None
+            if isAppointed
+            else Vacancy.recruiter_id == None
+        )
+    if byPriority is not None:
+        stmt = stmt.order_by(
+            Vacancy.priority if byPriority else Vacancy.priority.desc()
+        )
+    if byDateCreation is not None:
+        stmt = stmt.order_by(
+            Vacancy.created_at if byDateCreation else Vacancy.created_at.desc()
+        )
+    if byDateDeadline is not None:
+        stmt = stmt.order_by(
+            Vacancy.deadline if byDateDeadline else Vacancy.deadline.desc()
+        )
+    return await paginate(db, stmt)
 
 
 @router.post("/new")
@@ -86,6 +79,7 @@ async def create_vacancy(
         experience_to=vacancy.experience_to,
         education=vacancy.education,
         quantity=vacancy.quantity,
+        direction=vacancy.direction,
         description=vacancy.description,
         type_of_employment=vacancy.type_of_employment,
     )
@@ -122,7 +116,7 @@ async def get_vacancy(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            ).joinedload(VacancySkill.skill)
+            )
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -131,8 +125,6 @@ async def get_vacancy(
 
     if not result:
         raise HTTPException(status_code=404, detail="Vacancy not found")
-    skills = [vacancy_skill.skill for vacancy_skill in result.vacancy_skills]
-    print(skills)
     return VacancyDTO.model_validate(result)
 
 
@@ -144,15 +136,19 @@ skills = APIRouter(
 
 @skills.post("/new")
 async def add_skill(
-    skill: SkillCreate,
+    skills: List[SkillCreate],
     db: AsyncSession = Depends(get_db),
-) -> SkillSearchResult:
+) -> list[SkillSearchResult]:
     """Добавление нового навыка"""
-    db_skill = Skill(name=skill.name)
-    db.add(db_skill)
+    db_skills = []
+    for skill in skills:
+        db_skill = Skill(name=skill.name)
+        db.add(db_skill)
+        await db.flush()
+        await db.refresh(db_skill, ["id"])
+        db_skills.append(db_skill)
     await db.commit()
-
-    return SkillSearchResult(id=db_skill.id, name=db_skill.name)
+    return [SkillSearchResult.model_validate(obj) for obj in db_skills]
 
 
 @skills.get("/all")

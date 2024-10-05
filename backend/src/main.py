@@ -11,6 +11,8 @@ from src.hr.router import router as vacancy_router
 
 from .auth.router import router as auth_router
 
+from fastapi_pagination import add_pagination
+
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
@@ -43,6 +45,7 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_headers=["*"],
     )
+    add_pagination(_app)
     _app.include_router(auth_router)
     _app.include_router(vacancy_router)
     return _app
