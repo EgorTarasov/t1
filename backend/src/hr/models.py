@@ -28,6 +28,7 @@ class Vacancy(Base, TimestampMixin):
     experience_to: Mapped[int] = mapped_column(sa.Integer)
     education: Mapped[str] = mapped_column(sa.Text, nullable=False)
     quantity: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    direction: Mapped[str] = mapped_column(sa.Text, nullable=False)
     description: Mapped[str] = mapped_column(sa.Text, nullable=False)
     recruiter_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
