@@ -5,21 +5,27 @@ from loguru import logger
 from src.dependencies import get_db
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
-from .models import Vacancy, Skill
-from .schemas import (
+from src.hr.models import Vacancy, Skill
+from .vacancy.schemas import (
     VacancyCreate,
     SkillSearchResult,
-    SkillCreate,
     VacancyDTO,
     RoadmapDto,
-    AllCandidatesVacancyDto,
+    EXAMPLE_STAGES,
+)
+from .candidate.schemas import (
+    SkillCreate,
+    SkillSearchResult,
     AllCandidatesDeclinedDto,
     AllCandidatesPotentialDto,
-    EXAMPLE_STAGES,
+    AllCandidatesVacancyDto,
+    CandidateDto,
     EXAMPLE_ALL_ACTIVE,
     EXAMPLES_ALL_POTENTIAL,
     EXAMPLES_ALL_DECLINED,
 )
+
+
 from typing import Union
 from typing import List
 from fastapi_pagination import Page

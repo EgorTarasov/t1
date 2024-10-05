@@ -48,6 +48,13 @@ class Vacancy(Base, TimestampMixin):
         primaryjoin="User.id == Vacancy.recruiter_id",
     )
 
+    # candidates_ids: Mapped[list[int]] = mapped_column()
+
+    vacancy_candidates: Mapped[list["Candidate"]] = relationship(
+        "Candidate",
+        back_populates="vacancies",
+        secondary="vacancy_candidates",
+    )
     type_of_employment: Mapped[str] = mapped_column(sa.Text, nullable=False)
     vacancy_skills: Mapped[list["Skill"]] = relationship(
         "Skill",
@@ -73,6 +80,20 @@ class VacancySkill(Base):
 
     def __repr__(self):
         return f"<VacancySkill vacancy_id={self.vacancy_id} skill_id={self.skill_id} is_key_skill={self.is_key_skill}>"
+
+
+class VacancyCandidates(Base):
+    __tablename__ = "vacancy_candidates"  # type: ignore
+    id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
+    vacancy_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey("vacancies.id"), nullable=False
+    )
+    candidate_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey("candidates.id"), nullable=False
+    )
+
+    def __repr__(self):
+        return f"<VacancySkill vacancy_id={self.vacancy_id}>"
 
 
 class CandidateSkill(Base):
@@ -142,6 +163,11 @@ class Candidate(Base):
     cv_url: Mapped[str] = mapped_column(sa.Text, nullable=False)
     raw_json: Mapped[dict[str, tp.Any]] = mapped_column(JSON, nullable=False)
     src: Mapped[str] = mapped_column(sa.Text, default="hh", nullable=False)
+    vacancy: Mapped["Vacancy"] = relationship(
+        "Vacancy",
+        back_populates="vacancy_candidates",
+        secondary="vacancy_candidates",
+    )
 
 
 class RoadMapStageCompletion(Base):
