@@ -10,7 +10,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     env_file:
-      - .env
+      - stack.env
     environment:
       - TZ=Europe/Moscow
     ports:
@@ -24,19 +24,19 @@ services:
     environment:
       - TZ=Europe/Moscow
   api:
-    image: ghrc.io/egortarasov/t1/api:dev
+    image: ghcr.io/egortarasov/t1/api:dev
     build:
       context: .
       dockerfile: Dockerfile
     restart: always
     command: fastapi run src/main.py
     ports:
-      - 8000:8000
+      - 8080:8000
     depends_on:
       - db
       - redis
     env_file:
-      - .env
+      - stack.env
     environment:
       - TZ=Europe/Moscow
       - DOCKER_MODE=True
