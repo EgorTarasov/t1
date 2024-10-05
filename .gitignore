@@ -1,3 +1,6 @@
 .db/
 .vscode/
 .idea/
+__pycache__/
+.env
+stack.env

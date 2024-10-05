@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database import Base
 from src.models import TimestampMixin
+from src.hr.models import Vacancy
 
 
 class User(Base, TimestampMixin):
@@ -29,6 +30,10 @@ class User(Base, TimestampMixin):
     )
     verification: Mapped["EmailVerificationCode"] = relationship(
         "EmailVerificationCode", back_populates="user"
+    )
+    my_vacancies: Mapped[list["Vacancy"]] = relationship("Vacancy", back_populates="hr")
+    assigned_vacancies: Mapped[list["Vacancy"]] = relationship(
+        "Vacancy", back_populates="recruiter"
     )
 
     def __repr__(self):

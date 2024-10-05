@@ -7,7 +7,10 @@ import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from .models import Vacancy, Skill, VacancySkill
 from .schemas import VacancyCreate, SkillSearchResult, SkillCreate, VacancyDTO
+from typing import Union
 
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
 
 router = APIRouter(
     prefix="/vacancies",
@@ -15,11 +18,42 @@ router = APIRouter(
 )
 
 
-@router.get("/all/active")
+@router.get("/all/active", response_model=Page[VacancyDTO])
 async def return_active(
-    background_tasks: BackgroundTasks,
+    isAppointed: Union[bool, None] = None,
+    byDateDeadline: Union[bool, None] = None,
+    byDateCreation: Union[bool, None] = None,
+    byPriority: Union[str, None] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    stmt = (
+        sa.select(Vacancy)
+        .filter(
+            False
+            if isAppointed is None
+            else (
+                Vacancy.recruiter_id != "0"
+                if isAppointed
+                else Vacancy.recruiter_id == "0"
+            )
+        )
+        .order_by(
+            False
+            if byPriority is None
+            else (Vacancy.priority if byPriority else Vacancy.priority.desc())
+        )
+        .order_by(
+            False
+            if byPriority is None
+            else (Vacancy.created_at if byDateCreation else Vacancy.created_at.desc())
+        )
+        .order_by(
+            False
+            if byPriority is None
+            else (Vacancy.deadline if byDateDeadline else Vacancy.deadline.desc())
+        )
+    )
+    return await paginate(db, stmt)
     """
     Returns all active vacancies in the database.
 
