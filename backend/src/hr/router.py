@@ -5,8 +5,15 @@ from loguru import logger
 from src.dependencies import get_db
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
-from .models import Vacancy, Skill, VacancySkill
-from .schemas import VacancyCreate, SkillSearchResult, SkillCreate, VacancyDTO
+from .models import Vacancy, Skill
+from .schemas import (
+    VacancyCreate,
+    SkillSearchResult,
+    SkillCreate,
+    VacancyDTO,
+    RoadmapDto,
+    EXAMPLE_STAGES,
+)
 from typing import Union
 from typing import List
 from fastapi_pagination import Page
@@ -38,7 +45,11 @@ async def return_active(
     """
 
     # TODO: check join statement
-    stmt = sa.select(Vacancy).options(orm.joinedload(Vacancy.vacancy_skills))
+    stmt = sa.select(Vacancy).options(
+        orm.joinedload(Vacancy.vacancy_skills),
+        orm.joinedload(Vacancy.recruiter),
+        orm.joinedload(Vacancy.hr),
+    )
     if isAppointed is not None:
         stmt = stmt.filter(
             Vacancy.recruiter_id != None
@@ -57,6 +68,7 @@ async def return_active(
         stmt = stmt.order_by(
             Vacancy.deadline if byDateDeadline else Vacancy.deadline.desc()
         )
+
     return await paginate(db, stmt)
 
 
@@ -126,6 +138,29 @@ async def get_vacancy(
     if not result:
         raise HTTPException(status_code=404, detail="Vacancy not found")
     return VacancyDTO.model_validate(result)
+
+
+@router.get("/roadmap/{vacancy_id}")
+async def get_vacancy_roadmap(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> RoadmapDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(
+                Vacancy.vacancy_skills,
+            )
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return RoadmapDto(vacancy=VacancyDTO.model_validate(result), stages=EXAMPLE_STAGES)
 
 
 skills = APIRouter(
