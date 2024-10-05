@@ -1,13 +1,12 @@
-import typing as tp
 import datetime as dt
-from enum import unique
 import typing as tp
+
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import ARRAY, JSON
+from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.models import TimestampMixin
 from src.database import Base
+from src.models import TimestampMixin
 
 if tp.TYPE_CHECKING:
     from src.auth.models import User
@@ -37,12 +36,12 @@ class Vacancy(Base, TimestampMixin):
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
 
-    hr: Mapped["User"] = relationship(
+    hr = relationship(
         "User",
         back_populates="my_vacancies",
         primaryjoin="User.id == Vacancy.hr_id",
     )
-    recruiter: Mapped["User"] = relationship(
+    recruiter = relationship(
         "User",
         back_populates="assigned_vacancies",
         primaryjoin="User.id == Vacancy.recruiter_id",
@@ -50,13 +49,13 @@ class Vacancy(Base, TimestampMixin):
 
     # candidates_ids: Mapped[list[int]] = mapped_column()
 
-    vacancy_candidates: Mapped[list["Candidate"]] = relationship(
+    vacancy_candidates = relationship(
         "Candidate",
         back_populates="vacancies",
         secondary="vacancy_candidates",
     )
     type_of_employment: Mapped[str] = mapped_column(sa.Text, nullable=False)
-    vacancy_skills: Mapped[list["Skill"]] = relationship(
+    vacancy_skills = relationship(
         "Skill",
         back_populates="vacancies",
         secondary="vacancy_skills",
@@ -152,7 +151,7 @@ class Candidate(Base):
     spezialization: Mapped[str] = mapped_column(sa.Text, nullable=False)
     # Объединенение по ;
     education: Mapped[str] = mapped_column(sa.Text, nullable=False)
-    candidate_skills: Mapped[list["Skill"]] = relationship(
+    candidate_skills = relationship(
         "Skill",
         back_populates="candidates",
         secondary="candidate_skills",
@@ -163,7 +162,8 @@ class Candidate(Base):
     cv_url: Mapped[str] = mapped_column(sa.Text, nullable=False)
     raw_json: Mapped[dict[str, tp.Any]] = mapped_column(JSON, nullable=False)
     src: Mapped[str] = mapped_column(sa.Text, default="hh", nullable=False)
-    vacancy: Mapped["Vacancy"] = relationship(
+
+    vacancies = relationship(
         "Vacancy",
         back_populates="vacancy_candidates",
         secondary="vacancy_candidates",
@@ -192,12 +192,12 @@ class Skill(Base):
     __tablename__ = "skills"  # type: ignore
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(sa.Text, nullable=False, unique=True)
-    vacancies: Mapped["Vacancy"] = relationship(
+    vacancies = relationship(
         "Vacancy",
         back_populates="vacancy_skills",
         secondary="vacancy_skills",
     )
-    candidates: Mapped["Candidate"] = relationship(
+    candidates = relationship(
         "Candidate",
         back_populates="candidate_skills",
         secondary="candidate_skills",

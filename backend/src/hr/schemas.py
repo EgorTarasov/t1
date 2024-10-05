@@ -1,6 +1,8 @@
-import typing as tp
 import datetime as dt
+import typing as tp
+
 from pydantic import BaseModel, ConfigDict, Field
+
 from src.auth.schemas import UserDto
 
 
@@ -84,7 +86,7 @@ class CandidateDto(BaseModel):
     cv_url: str = Field(..., description="")
     raw_json: dict[str, tp.Any] = Field(..., description="")
     src: str = Field(..., description="")
-    vacancy: VacancyDTO | None = Field(None, description="")
+    vacancy: "VacancyDTO | None" = Field(None, description="")
 
 
 class VacancyDTO(BaseModel):

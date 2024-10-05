@@ -1,35 +1,22 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Union
 
-from loguru import logger
-from src.dependencies import get_db
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
-from src.hr.models import Vacancy, Skill
-from .vacancy.schemas import (
-    VacancyCreate,
-    SkillSearchResult,
-    VacancyDTO,
-    RoadmapDto,
-    EXAMPLE_STAGES,
-)
-from .candidate.schemas import (
-    SkillCreate,
-    SkillSearchResult,
-    AllCandidatesDeclinedDto,
-    AllCandidatesPotentialDto,
-    AllCandidatesVacancyDto,
-    CandidateDto,
-    EXAMPLE_ALL_ACTIVE,
-    EXAMPLES_ALL_POTENTIAL,
-    EXAMPLES_ALL_DECLINED,
-)
-
-
-from typing import Union
-from typing import List
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
 from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.dependencies import get_db
+
+from .models import Skill, Vacancy
+from .schemas import (EXAMPLE_ALL_ACTIVE, EXAMPLE_STAGES,
+                      EXAMPLES_ALL_DECLINED, EXAMPLES_ALL_POTENTIAL,
+                      AllCandidatesDeclinedDto, AllCandidatesPotentialDto,
+                      AllCandidatesVacancyDto, CandidateDto, RoadmapDto,
+                      SkillCreate, SkillSearchResult, VacancyCreate,
+                      VacancyDTO)
 
 router = APIRouter(
     prefix="/vacancies",
@@ -115,7 +102,7 @@ async def create_vacancy(
 
     additional_skills = (await db.execute(stmt)).scalars()
 
-    db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)
+    db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)  # type: ignore
 
     try:
         db.add(db_vacancy)
@@ -186,7 +173,10 @@ async def get_active_vacancies(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            )
+            ),
+            orm.joinedload(
+                Vacancy.vacancy_candidates,
+            ),
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -201,7 +191,7 @@ async def get_active_vacancies(
 
 
 @router.get("/candidates/declined/{vacancy_id}")
-async def get_active_vacancies(
+async def get_declined_vacancies(
     vacancy_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> AllCandidatesDeclinedDto:
@@ -211,7 +201,10 @@ async def get_active_vacancies(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            )
+            ),
+            orm.joinedload(
+                Vacancy.vacancy_candidates,
+            ),
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -226,7 +219,7 @@ async def get_active_vacancies(
 
 
 @router.get("/candidates/potential/{vacancy_id}")
-async def get_active_vacancies(
+async def get_potential_vacancies(
     vacancy_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> AllCandidatesPotentialDto:
@@ -236,7 +229,10 @@ async def get_active_vacancies(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            )
+            ),
+            orm.joinedload(
+                Vacancy.vacancy_candidates,
+            ),
         )
         .filter(Vacancy.id == vacancy_id)
     )
