@@ -2,16 +2,13 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_pagination import add_pagination
 from loguru import logger
 
-from src.config import Config, app_config
 from src.database import db
-from src.email.config import EmailConfig, email_config
 from src.hr.router import router as vacancy_router
 
 from .auth.router import router as auth_router
-
-from fastapi_pagination import add_pagination
 
 
 @asynccontextmanager

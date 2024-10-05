@@ -1,6 +1,8 @@
-import typing as tp
 import datetime as dt
+import typing as tp
+
 from pydantic import BaseModel, ConfigDict, Field
+
 from src.auth.schemas import UserDto
 
 
@@ -68,6 +70,25 @@ class VacancyCreate(BaseModel):
     type_of_employment: str = Field("Полная занятость", title="Тип занятости")
 
 
+class CandidateDto(BaseModel):
+    id: int = Field(..., description="")
+    dob: dt.date = Field(..., description="")
+    # Объединенение по ;
+    spezialization: str = Field(..., description="")
+    # Объединенение по ;
+    education: str = Field(..., description="")
+    candidate_skills: list[SkillSearchResult] = Field(
+        None, description="List of skill IDs associated with candidate"
+    )
+    description: str = Field(..., description="")
+    # Объединенение по :
+    experience: str = Field(..., description="")
+    cv_url: str = Field(..., description="")
+    raw_json: dict[str, tp.Any] = Field(..., description="")
+    src: str = Field(..., description="")
+    vacancy: "VacancyDTO | None" = Field(None, description="")
+
+
 class VacancyDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -91,6 +112,9 @@ class VacancyDTO(BaseModel):
     type_of_employment: str = Field(..., description="The type of employment")
     vacancy_skills: list[SkillSearchResult] = Field(
         None, description="List of skill IDs associated with the vacancy"
+    )
+    vacancy_candidates: list[CandidateDto] = Field(
+        None, description="List of candidates IDs associated with vacancy"
     )
 
     recruiter: UserDto | None = Field(
