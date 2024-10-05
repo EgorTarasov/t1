@@ -1,12 +1,12 @@
+import { AuthService } from "@/stores/auth.service";
 import { redirect } from "@tanstack/react-router";
 
-export const checkGrant = (allowed: boolean) => {
-  if (allowed) {
+export const checkAuth = () => {
+  if (AuthService.auth.state === "authenticated") {
     return;
   }
 
-  throw new Error("You shall not pass! (implement redirect)");
-  // throw redirect({
-  //   to: "/",
-  // });
+  throw redirect({
+    to: "/login",
+  });
 };

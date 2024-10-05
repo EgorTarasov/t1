@@ -7,22 +7,23 @@ export namespace AuthEndpoint {
     password: string;
   }
   export const login = async (v: LoginTemplate) =>
-    api.post("/users/login", v, {
+    api.post("/auth/email/login", v, {
       schema: AuthDto.Token,
     });
 
   export interface RegisterTemplate {
     email: string;
     password: string;
-    firstName: string;
-    lastName: string;
+    first_name: string;
+    last_name: string;
   }
   export const register = async (v: RegisterTemplate) =>
-    api.post("/users/register", v, {
+    api.post("/auth/email/register", v, {
       schema: AuthDto.Token,
     });
 
-  export const test = async () => {
-    api.get("/user");
-  };
+  export const me = async () =>
+    api.get("/auth/me", {
+      schema: AuthDto.User,
+    });
 }

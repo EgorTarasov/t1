@@ -1,15 +1,19 @@
+import { AuthDto } from "@/api/models/auth.model";
+import { z } from "zod";
+
 export namespace Auth {
-  export type Authenticated = {
+  export interface Authenticated {
     state: "authenticated";
-  };
+    user: z.infer<typeof AuthDto.User>;
+  }
 
-  export type Anonymous = {
+  export interface Anonymous {
     state: "anonymous";
-  };
+  }
 
-  export type Loading = {
+  export interface Loading {
     state: "loading";
-  };
+  }
 
   export type State = Authenticated | Anonymous | Loading;
 }

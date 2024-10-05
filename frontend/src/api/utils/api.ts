@@ -1,8 +1,9 @@
 import { toast } from "sonner";
 import { z } from "zod";
 import { buildQueryString, Query } from "./buildQueryString";
+import { authToken } from "./authToken";
 
-const baseUrl = import.meta.env.VITE_API_URL || "http://79.174.82.229/api";
+const baseUrl = import.meta.env.VITE_API_URL || "https://api.t1.larek.tech";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Schema = z.ZodType<any, any, any>;
@@ -15,6 +16,7 @@ export interface Config<T extends Schema> extends RequestInit {
 const getConfig = <T extends Schema>(config?: Config<T>): Config<T> => ({
   ...config,
   headers: {
+    Authorization: `Bearer ${authToken.get()}`,
     "Access-Control-Allow-Origin": "*",
     "Content-Type": "application/json",
     ...(config?.headers ?? {}),
@@ -22,7 +24,6 @@ const getConfig = <T extends Schema>(config?: Config<T>): Config<T> => ({
 });
 
 const handleError = (error: unknown) => {
-  // Fetch does not natively support a `isAxiosError` equivalent, so handle errors differently
   if (error instanceof Error) {
     toast.error("Error", {
       description:

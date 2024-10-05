@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
 
 @layer base {
   :root {
@@ -11,7 +10,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 209.1 98.9% 34.3%;
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -65,8 +64,7 @@
     @apply border-border;
   }
   #app {
-    @apply bg-background text-foreground;
-    transition: background-color 150ms, color 150ms;
+    @apply bg-gray-100 text-foreground transition-all duration-150 overflow-hidden;
     -webkit-font-smoothing: antialiased;
   }
 }
@@ -75,17 +73,11 @@ html,
 body,
 #app {
   height: 100% !important;
+  font-family: "Inter Variable", sans-serif;
 }
 
 html {
   overflow: hidden;
-}
-
-#app {
-  display: flex;
-  flex-direction: column;
-  overflow-x: hidden;
-  font-family: "Golos Text", sans-serif;
 }
 
 @keyframes appear {
