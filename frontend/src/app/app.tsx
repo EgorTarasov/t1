@@ -17,7 +17,7 @@ import { routeTree } from "../routeTree.gen";
 import { ThemeProvider } from "@/components/hoc/theme-provider";
 
 // Create a new router instance
-const router = createRouter({ routeTree, defaultStaleTime: Infinity });
+const router = createRouter({ routeTree });
 
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
@@ -31,10 +31,8 @@ const rootElement = document.getElementById("app")!;
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
-    <StrictMode>
-      <ThemeProvider defaultTheme="light">
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </StrictMode>,
+    <ThemeProvider defaultTheme="light">
+      <RouterProvider router={router} />
+    </ThemeProvider>,
   );
 }

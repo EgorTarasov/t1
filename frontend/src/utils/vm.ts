@@ -12,7 +12,7 @@ export const useViewModel = <T extends DisposableVm, U extends any[]>(
 ): T => {
   const [vm] = useState(() => new _vm(...args));
 
-  useEffect(() => vm.dispose, [vm]);
+  useEffect(() => vm.dispose, []);
 
   return vm;
 };

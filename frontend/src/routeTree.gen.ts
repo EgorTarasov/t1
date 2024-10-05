@@ -14,7 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as BaseIndexImport } from './routes/_base/index'
-import { Route as BaseVacanciesImport } from './routes/_base/vacancies'
+import { Route as BaseVacancyIdImport } from './routes/_base/vacancy/$id'
 
 // Create Virtual Routes
 
@@ -46,8 +46,8 @@ const BaseLoginLazyRoute = BaseLoginLazyImport.update({
   getParentRoute: () => BaseLazyRoute,
 } as any).lazy(() => import('./routes/_base/login.lazy').then((d) => d.Route))
 
-const BaseVacanciesRoute = BaseVacanciesImport.update({
-  path: '/vacancies',
+const BaseVacancyIdRoute = BaseVacancyIdImport.update({
+  path: '/vacancy/$id',
   getParentRoute: () => BaseLazyRoute,
 } as any)
 
@@ -61,13 +61,6 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof BaseLazyImport
       parentRoute: typeof rootRoute
-    }
-    '/_base/vacancies': {
-      id: '/_base/vacancies'
-      path: '/vacancies'
-      fullPath: '/vacancies'
-      preLoaderRoute: typeof BaseVacanciesImport
-      parentRoute: typeof BaseLazyImport
     }
     '/_base/login': {
       id: '/_base/login'
@@ -90,6 +83,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BaseIndexImport
       parentRoute: typeof BaseLazyImport
     }
+    '/_base/vacancy/$id': {
+      id: '/_base/vacancy/$id'
+      path: '/vacancy/$id'
+      fullPath: '/vacancy/$id'
+      preLoaderRoute: typeof BaseVacancyIdImport
+      parentRoute: typeof BaseLazyImport
+    }
   }
 }
 
@@ -97,10 +97,10 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   BaseLazyRoute: BaseLazyRoute.addChildren({
-    BaseVacanciesRoute,
     BaseLoginLazyRoute,
     BaseRegisterLazyRoute,
     BaseIndexRoute,
+    BaseVacancyIdRoute,
   }),
 })
 
@@ -118,15 +118,11 @@ export const routeTree = rootRoute.addChildren({
     "/_base": {
       "filePath": "_base.lazy.tsx",
       "children": [
-        "/_base/vacancies",
         "/_base/login",
         "/_base/register",
-        "/_base/"
+        "/_base/",
+        "/_base/vacancy/$id"
       ]
-    },
-    "/_base/vacancies": {
-      "filePath": "_base/vacancies.tsx",
-      "parent": "/_base"
     },
     "/_base/login": {
       "filePath": "_base/login.lazy.tsx",
@@ -138,6 +134,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_base/": {
       "filePath": "_base/index.tsx",
+      "parent": "/_base"
+    },
+    "/_base/vacancy/$id": {
+      "filePath": "_base/vacancy/$id.tsx",
       "parent": "/_base"
     }
   }
