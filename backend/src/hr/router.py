@@ -12,7 +12,13 @@ from .schemas import (
     SkillCreate,
     VacancyDTO,
     RoadmapDto,
+    AllCandidatesVacancyDto,
+    AllCandidatesDeclinedDto,
+    AllCandidatesPotentialDto,
     EXAMPLE_STAGES,
+    EXAMPLE_ALL_ACTIVE,
+    EXAMPLES_ALL_POTENTIAL,
+    EXAMPLES_ALL_DECLINED,
 )
 from typing import Union
 from typing import List
@@ -161,6 +167,81 @@ async def get_vacancy_roadmap(
     if not result:
         raise HTTPException(status_code=404, detail="Vacancy not found")
     return RoadmapDto(vacancy=VacancyDTO.model_validate(result), stages=EXAMPLE_STAGES)
+
+
+@router.get("/candidates/active/{vacancy_id}")
+async def get_active_vacancies(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> AllCandidatesVacancyDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(
+                Vacancy.vacancy_skills,
+            )
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return AllCandidatesVacancyDto(
+        vacancy=VacancyDTO.model_validate(result), candidates=EXAMPLE_ALL_ACTIVE
+    )
+
+
+@router.get("/candidates/declined/{vacancy_id}")
+async def get_active_vacancies(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> AllCandidatesDeclinedDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(
+                Vacancy.vacancy_skills,
+            )
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return AllCandidatesDeclinedDto(
+        vacancy=VacancyDTO.model_validate(result), candidates=EXAMPLES_ALL_DECLINED
+    )
+
+
+@router.get("/candidates/potential/{vacancy_id}")
+async def get_active_vacancies(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> AllCandidatesPotentialDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(
+                Vacancy.vacancy_skills,
+            )
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return AllCandidatesPotentialDto(
+        vacancy=VacancyDTO.model_validate(result), candidates=EXAMPLES_ALL_POTENTIAL
+    )
 
 
 skills = APIRouter(
