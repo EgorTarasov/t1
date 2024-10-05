@@ -12,9 +12,7 @@ class SkillBase(BaseModel):
 
 
 class SkillCreate(SkillBase):
-    """Добавление навыка к вакансии"""
-
-    is_key_skill: bool = Field(True, title="Ключевой навык")
+    """Добавление навыка в общий пул"""
 
 
 class SkillSearchResult(SkillBase):

@@ -3,7 +3,15 @@ import typing as tp
 
 import pyotp
 import sqlalchemy as sa
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    Header,
+    Query,
+)
 from loguru import logger
 from sqlalchemy import orm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,6 +26,7 @@ from .schemas import (
     EmailRecovery,
     EmailRecoveryNewPassword,
     UserCreate,
+    UserDto,
     UserLogin,
 )
 from .service import (
@@ -224,3 +233,46 @@ async def reset(
     await db.commit()
 
     return {"message": "Password reset"}
+
+
+@router.get("/me")
+async def me(
+    token: str | None = Query(None),
+    authorization: tp.Annotated[str | None, Header()] = None,
+    db: AsyncSession = Depends(get_db),
+) -> UserDto:
+    """
+    Retrieves the current authenticated user's information.
+
+    """
+    # Read bearer token from headers and search user with id
+    print(authorization, token)
+    if authorization is None and token is None:
+        raise HTTPException(
+            status_code=401, detail="Authorization header missing or invalid"
+        )
+    if token is not None:
+        if len(token.split(" ")) != 2:
+            raise HTTPException(
+                status_code=401, detail="Authorization header missing or invalid"
+            )
+        token = token.split(" ")[1]
+    elif authorization is not None:
+        if len(authorization.split(" ")) != 2:
+            raise HTTPException(
+                status_code=401, detail="Authorization header missing or invalid"
+            )
+        token = authorization.split(" ")[1]
+
+    try:
+
+        payload = JWTEncoder.decode_access_token(token)
+        stmt = sa.select(User).where(User.id == payload.user_id)
+        user: User | None = (await db.execute(stmt)).scalar_one_or_none()
+        print(payload)
+        if user is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return UserDto.model_validate(user)
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=401, detail="Invalid token")

@@ -1,3 +1,5 @@
+import datetime as dt
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -52,3 +54,18 @@ class EmailRecovery(BaseModel):
 class EmailRecoveryNewPassword(BaseModel):
     code: str = Field("", min_length=6, max_length=6)
     new_password: str = Field("test12345678", min_length=12)
+
+
+class UserDto(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int = Field(1)
+    first_name: str = Field("Egor", title="Имя")
+    last_name: str = Field("Tarasov", title="Фамилия")
+    email: EmailStr = Field(
+        "@gmail.com", title="email", description="электронная почта"
+    )
+    role: str = Field("user")
+    is_active: bool = Field(True)
+    created_at: dt.datetime = Field("2021-01-01T00:00:00")
+    updated_at: dt.datetime = Field("2021-01-01T00:00:00")
