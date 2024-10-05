@@ -1,6 +1,7 @@
 import typing as tp
 import datetime as dt
 from pydantic import BaseModel, ConfigDict, Field
+from src.auth.schemas import UserDto
 
 
 class SkillBase(BaseModel):
@@ -91,3 +92,136 @@ class VacancyDTO(BaseModel):
     vacancy_skills: list[SkillSearchResult] = Field(
         None, description="List of skill IDs associated with the vacancy"
     )
+
+    recruiter: UserDto | None = Field(
+        None, description="The recruiter assigned to the vacancy"
+    )
+    hr: UserDto | None = Field(None, description="The HR assigned to the vacancy")
+
+    created_at: dt.datetime = Field(
+        dt.datetime(2021, 1, 1),
+        description="The creation date of the vacancy",
+    )
+
+
+class SourceDto(BaseModel):
+    name: str = Field(..., description="Название источника")
+    count: int = Field(..., description="Количество кандидатов с этого источника")
+    percentage: float = Field(..., description="Процент кандидатов с этого источника")
+
+
+class DeclineDto(BaseModel):
+    reason: str = Field(..., description="Причина отказа")
+    count: int = Field(..., description="Количество кандидатов с этой причиной")
+    percentage: float = Field(..., description="Процент кандидатов с этой причиной")
+
+
+class StageDto(BaseModel):
+    id: int = Field(None, description="Уникальный идентификатор этапа")
+    name: str = Field(..., description="Названия этапа для интерфейса")
+    order: int = Field(..., description="Порядок этапа для отображения  воронки")
+    success_rate: float = Field(
+        ..., description="Процент прохождения на следующий этап"
+    )
+    avg_duration: int = Field(..., description="Средняя длительность этапа в днях")
+    max_duration: int = Field(..., description="Максимальная длительность этапа в днях")
+    number_of_candidates: int = Field(..., description="Количество кандидатов на этапе")
+    sources: list[SourceDto] = Field(..., description="Информация об источниках")
+
+    decline_reasons: list[DeclineDto] = Field(
+        None, description="Причина отказа на этапе для всех кандидатов"
+    )
+
+
+class RoadmapDto(BaseModel):
+    vacancy: VacancyDTO = Field(..., description="Информация о вакансии")
+    stages: list[StageDto] = Field(..., description="Список этапов воронки")
+
+
+EXAMPLE_STAGES = [
+    StageDto(
+        id=1,
+        name="Hr скриннинг",
+        order=1,
+        success_rate=0.7,
+        avg_duration=2,
+        max_duration=20,
+        number_of_candidates=100,
+        sources=[
+            SourceDto(name="hh.ru", count=50, percentage=50),
+            SourceDto(name="linkedin", count=50, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=50, percentage=50),
+            DeclineDto(reason="Не отвечает", count=50, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=2,
+        name="Телефонное интервью",
+        order=2,
+        success_rate=0.5,
+        avg_duration=3,
+        max_duration=15,
+        number_of_candidates=50,
+        sources=[
+            SourceDto(name="hh.ru", count=25, percentage=50),
+            SourceDto(name="linkedin", count=25, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=25, percentage=50),
+            DeclineDto(reason="Не отвечает", count=25, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=3,
+        name="Финальное интервью",
+        order=3,
+        success_rate=0.3,
+        avg_duration=5,
+        max_duration=10,
+        number_of_candidates=20,
+        sources=[
+            SourceDto(name="hh.ru", count=10, percentage=50),
+            SourceDto(name="linkedin", count=10, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=10, percentage=50),
+            DeclineDto(reason="Не отвечает", count=10, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=4,
+        name="Получение оффера",
+        order=4,
+        success_rate=0.9,
+        avg_duration=1,
+        max_duration=5,
+        number_of_candidates=5,
+        sources=[
+            SourceDto(name="hh.ru", count=3, percentage=60),
+            SourceDto(name="linkedin", count=2, percentage=40),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=3, percentage=60),
+            DeclineDto(reason="Не отвечает", count=2, percentage=40),
+        ],
+    ),
+    StageDto(
+        id=5,
+        name="выходит в штат",
+        order=5,
+        success_rate=1.0,
+        avg_duration=0,
+        max_duration=0,
+        number_of_candidates=5,
+        sources=[
+            SourceDto(name="hh.ru", count=3, percentage=60),
+            SourceDto(name="linkedin", count=2, percentage=40),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=0, percentage=0),
+            DeclineDto(reason="Не отвечает", count=0, percentage=0),
+        ],
+    ),
+]
