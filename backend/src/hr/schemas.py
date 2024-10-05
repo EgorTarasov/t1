@@ -56,6 +56,9 @@ class VacancyCreate(BaseModel):
     # количество открытых вакансий
     quantity: int = Field(1, title="Количество вакансий")
 
+    # направление в компании
+    direction: str = Field("Аналитика", title="Направление")
+
     # дополнительные навыки
     additional_skills: list[int] = Field([3], title="Дополнительные навыки")
 
