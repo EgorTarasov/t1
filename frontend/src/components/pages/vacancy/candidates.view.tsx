@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { ChartSection } from "./chart-section";
 import { Column, DataTable } from "@/components/ui/data-table";
 import { CandidatesDto } from "@/api/models/candidates.model";
+import { AddCandidateModal } from "./add-candidate.modal";
 
 const activeColumns: Column<CandidatesDto.ActiveCandidate>[] = [
   {
@@ -96,7 +97,10 @@ export const CandidatesView: FCVM<VacancyStore> = observer((x) => {
 
   return (
     <div className="flex flex-col gap-4">
-      <ChartSection title="Кандидаты по вакансии">
+      <ChartSection
+        title="Кандидаты по вакансии"
+        actions={<AddCandidateModal onSubmit={(v) => void 0} />}
+      >
         {x.vm.activeCandidates && (
           <DataTable data={x.vm.activeCandidates} columns={activeColumns} />
         )}

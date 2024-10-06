@@ -53,6 +53,12 @@ export const DataTable = <T,>({
           <TableRow
             key={rowIndex}
             onClick={onRowClick ? () => onRowClick(item) : undefined}
+            tabIndex={onRowClick ? 0 : undefined}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onRowClick?.(item);
+              }
+            }}
             className={
               onRowClick
                 ? "cursor-pointer hover:bg-slate-100 transition-colors"
