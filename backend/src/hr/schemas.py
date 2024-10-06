@@ -93,13 +93,13 @@ class CandidateDto(BaseModel):
     # Объединенение по ;
     spezialization: str = Field(..., description="")
     # Объединенение по ;
-    education: str = Field(..., description="")
+    education: list[dict[str, tp.Any]] = Field(..., description="")
     candidate_skills: list[SkillSearchResult] = Field(
         None, description="List of skill IDs associated with candidate"
     )
     description: str = Field(..., description="")
     # Объединенение по :
-    experience: str = Field(..., description="")
+    experience: list[dict[str, tp.Any]] = Field(..., description="")
     cv_url: str = Field(..., description="")
     raw_json: dict[str, tp.Any] = Field(..., description="")
     src: str = Field(..., description="")
