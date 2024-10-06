@@ -157,6 +157,7 @@ class RoadmapStage(Base, TimestampMixin):
 class Candidate(Base):
     """Кандидаты"""
 
+
     __tablename__ = "candidates"  # type: ignore
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     dob: Mapped[dt.date] = mapped_column(sa.Date, nullable=False)
