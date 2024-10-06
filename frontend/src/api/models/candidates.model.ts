@@ -26,4 +26,19 @@ export namespace CandidatesDto {
     similarity: z.number(),
   });
   export type PotentialCandidate = z.infer<typeof PotentialCandidate>;
+
+  export const Analytics = z.object({
+    people_per_vacancy: z.number(),
+    candidates_salary: z.object({
+      start: z.number(),
+      end: z.number(),
+    }),
+    market_salary: z.object({
+      start: z.number(),
+      end: z.number(),
+    }),
+    candidate_median_salary: z.number(),
+    median_salary: z.number(),
+  });
+  export type Analytics = z.infer<typeof Analytics>;
 }

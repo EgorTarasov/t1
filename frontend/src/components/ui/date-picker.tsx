@@ -1,9 +1,10 @@
 "use client";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
+import { ru } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar, CalendarProps } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
@@ -17,8 +18,8 @@ export const DatePicker = forwardRef<
   {
     date?: Date;
     setDate: (date?: Date) => void;
-  }
->(function DatePickerCmp({ date, setDate }, ref) {
+  } & CalendarProps
+>(function DatePickerCmp({ date, setDate, ...props }, ref) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -30,11 +31,16 @@ export const DatePicker = forwardRef<
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>Pick a date</span>}
+          {date ? (
+            format(date, "PPP", { locale: ru })
+          ) : (
+            <span>Выберите дату</span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" ref={ref}>
         <Calendar
+          {...props}
           mode="single"
           selected={date}
           onSelect={setDate}
