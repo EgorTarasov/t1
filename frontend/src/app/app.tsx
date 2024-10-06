@@ -3,7 +3,6 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./globals.css";
 import { configure } from "mobx";
-import { registerSW } from "virtual:pwa-register";
 
 registerSW({
   immediate: true,
@@ -16,6 +15,7 @@ configure({
 // Import the generated route tree
 import { routeTree } from "../routeTree.gen";
 import { ThemeProvider } from "@/components/hoc/theme-provider";
+import { registerSW } from "virtual:pwa-register";
 
 // Create a new router instance
 const router = createRouter({ routeTree });
