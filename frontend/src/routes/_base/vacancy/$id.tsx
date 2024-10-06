@@ -41,15 +41,14 @@ const Page = observer(() => {
   const createdAt = new Date(vm.vacancy.vacancy.created_at);
   const dateNow = new Date();
 
+  const totalDuration = deadline.getTime() - createdAt.getTime();
+  const timePassed = dateNow.getTime() - createdAt.getTime();
+
   const daysLeft = Math.ceil(
-    (deadline.getTime() - dateNow.getTime()) / (1000 * 3600 * 24),
+    (deadline.getTime() - dateNow.getTime()) / (1000 * 60 * 60 * 24),
   );
 
-  const percentage = Math.round(
-    ((dateNow.getTime() - createdAt.getTime()) /
-      (deadline.getTime() - createdAt.getTime())) *
-      100,
-  );
+  const percentage = Math.min((timePassed / totalDuration) * 100, 100);
 
   return (
     <MainLayout
@@ -59,8 +58,8 @@ const Page = observer(() => {
             {vm.vacancy.vacancy.name}
           </h1>
           <p className="text-slate-500">{vm.vacancy.vacancy.area}</p>
-          <div className="flex justify-between items-end gap-2">
-            <div className="space-y-2 basis-[300px]">
+          <div className="flex justify-between md:items-end gap-2 flex-col md:flex-row">
+            <div className="space-y-2 md:basis-[300px] w-full md:w-auto">
               <span className="flex items-center text-slate-800">
                 {deadline.toLocaleDateString("ru-RU")}
                 <div className="rounded-full bg-slate-500 min-w-2 size-2 inline-block mx-2"></div>
