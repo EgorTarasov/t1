@@ -67,12 +67,12 @@ const DropdownMultiple = observer(<T,>(p: ComboboxMultipleProps<T>) => {
 
   return (
     <Combobox value={p.value} multiple onChange={p.onChange}>
-      <div className="relative text-sm">
-        {p.label && <Label className="text-sm">{p.label}</Label>}
+      <div className="relative text-sm pt-0.5">
+        {p.label && <Label className="font-medium">{p.label}</Label>}
         <div
           className={cn(
             "relative h-fit flex items-center w-full",
-            p.label && "mt-2",
+            p.label && "mt-1",
           )}
         >
           <ComboboxInput
@@ -92,8 +92,9 @@ const DropdownMultiple = observer(<T,>(p: ComboboxMultipleProps<T>) => {
             displayValue={() => (inputFocused ? "" : placeholder)}
             onChange={(event) => setQuery(event.target.value)}
           />
-          <ComboboxButton className="h-5 w-5 absolute right-2 text-accent-foreground">
+          <ComboboxButton className="h-5 w-5 items-center justify-center flex absolute right-2 text-accent-foreground">
             <ChevronDownIcon
+              strokeWidth={1.5}
               className={cn("transition-all", inputFocused && "rotate-180")}
             />
           </ComboboxButton>
@@ -107,12 +108,12 @@ const DropdownMultiple = observer(<T,>(p: ComboboxMultipleProps<T>) => {
           afterLeave={() => setQuery("")}
         >
           <ComboboxOptions
-            className="absolute z-10 mt-1 max-h-60 w-full border overflow-auto rounded-xl py-2 bg-card text-card-foreground"
+            className="absolute z-10 mt-1 max-h-60 w-full border overflow-auto rounded-lg py-2 bg-card text-card-foreground"
             style={{
               scrollbarWidth: "thin",
             }}
           >
-            {filteredOptions.length === 0 && query !== "" ? (
+            {filteredOptions.length === 0 ? (
               <div className="px-4 py-2 text-muted-foreground">
                 Ничего не найдено
               </div>
@@ -131,7 +132,7 @@ const DropdownMultiple = observer(<T,>(p: ComboboxMultipleProps<T>) => {
                   {({ selected }) => (
                     <>
                       <span>{p.render(option)}</span>
-                      {selected && <CheckIcon className="w-5 h-5" />}
+                      {selected && <CheckIcon className="size-3" />}
                     </>
                   )}
                 </ComboboxOption>

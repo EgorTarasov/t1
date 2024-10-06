@@ -21,25 +21,11 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: "autoUpdate",
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\.lct\.larek\.tech\/consumers\/q$/,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "api-cache",
-              expiration: {
-                maxEntries: 1, // Keep only one entry
-              },
-              cacheableResponse: {
-                statuses: [0, 200], // Cache successful responses and opaque responses
-              },
-            },
-          },
-        ],
+      manifest: {
+        theme_color: "#015AAE",
+        name: "Дашборд рекуртера",
       },
     }),
-    // basicSsl()
   ],
   build: {
     target: "esnext",
