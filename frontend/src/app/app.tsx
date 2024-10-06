@@ -12,6 +12,7 @@ registerSW({
 configure({
   enforceActions: "never",
 });
+
 // Import the generated route tree
 import { routeTree } from "../routeTree.gen";
 import { ThemeProvider } from "@/components/hoc/theme-provider";
