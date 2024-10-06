@@ -1,10 +1,13 @@
+import { VacancyEndpoint } from "@/api/endpoints/vacanvy.endpoint";
 import { VacancyDto } from "@/api/models/vacancy.model";
+import DropdownMultiple from "@/components/DropdownMultiple";
 import { MainLayout } from "@/components/hoc/layouts/main.layout";
 import { Column, DataTable } from "@/components/ui/data-table";
 import { IconInput } from "@/components/ui/input";
 import { VacanciesStore } from "@/stores/vacancies.store";
 import { Priority } from "@/types/priority.type";
 import { checkAuth } from "@/utils/check-grant";
+import { useViewModel } from "@/utils/vm";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { SearchIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -30,7 +33,8 @@ const columns: Column<VacancyDto.Item>[] = [
 ];
 
 const Page = observer(() => {
-  const vm = Route.useLoaderData();
+  const list = Route.useLoaderData();
+  const vm = useViewModel(VacanciesStore, list);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
 
@@ -43,15 +47,21 @@ const Page = observer(() => {
           </h1>
           <IconInput
             placeholder="Поиск"
+            containerClassName="h-min mt-auto"
             value={search}
             leftIcon={<SearchIcon />}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <div className="flex flex-wrap gap-y-3 gap-x-2">
+            {vm.filters.map((f, i) => (
+              <DropdownMultiple {...f.attributes} key={i} />
+            ))}
+          </div>
         </div>
       }
     >
       <DataTable
-        data={vm.items.filter((x) =>
+        data={vm.filteredItems.filter((x) =>
           x.name.toLowerCase().includes(search.toLowerCase()),
         )}
         columns={columns}
@@ -72,12 +82,11 @@ export const Route = createFileRoute("/_base/")({
   component: Page,
   beforeLoad: checkAuth,
   loader: async () => {
-    checkAuth();
+    const res = await VacancyEndpoint.list({
+      page: 1,
+      size: 100,
+    });
 
-    const vm = new VacanciesStore();
-
-    await vm.init();
-
-    return vm;
+    return res.items;
   },
 });

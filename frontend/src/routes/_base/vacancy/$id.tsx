@@ -21,6 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { VacancyStore } from "@/stores/vanacy.store";
 import { Priority } from "@/types/priority.type";
 import { checkAuth } from "@/utils/check-grant";
@@ -65,14 +70,28 @@ const Page = observer(() => {
           </h1>
           <p className="text-slate-500">{vm.vacancy.vacancy.area}</p>
           <div className="flex justify-between md:items-end gap-2 flex-col md:flex-row">
-            <div className="space-y-2 md:basis-[300px] w-full md:w-auto">
-              <span className="flex items-center text-slate-800">
-                {deadline.toLocaleDateString("ru-RU")}
-                <div className="rounded-full bg-slate-500 min-w-2 size-2 inline-block mx-2"></div>
-                ещё {daysLeft} {pluralize(daysLeft, ["день", "дня", "дней"])}
-              </span>
-              <Progress value={percentage} className="basis-[300px] h-2" />
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="space-y-2 md:basis-[300px] w-full md:w-auto">
+                  <span className="flex items-center text-slate-800">
+                    {deadline.toLocaleDateString("ru-RU")}
+                    {daysLeft > 0 && (
+                      <>
+                        <div className="rounded-full bg-slate-500 min-w-2 size-2 inline-block mx-2"></div>
+                        ещё {daysLeft}{" "}
+                        {pluralize(daysLeft, ["день", "дня", "дней"])}
+                      </>
+                    )}
+                  </span>
+                  <Progress value={percentage} className="basis-[300px] h-2" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                Начало: {createdAt.toLocaleDateString("ru-RU")}
+                <br />
+                Дедлайн: {deadline.toLocaleDateString("ru-RU")}
+              </TooltipContent>
+            </Tooltip>
             <div>
               <Label htmlFor="priority">Приоритет</Label>
               <Select
