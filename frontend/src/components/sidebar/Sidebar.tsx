@@ -1,7 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { Logo } from "../ui/logo";
-import { Link, useLocation, useMatches } from "@tanstack/react-router";
+import {
+  Link,
+  useLocation,
+  useMatches,
+  useNavigate,
+} from "@tanstack/react-router";
 import { RouteType } from "@/types/router.type";
 import {
   BriefcaseIcon,
@@ -27,15 +32,17 @@ const items: {
   label: string;
   icon: React.ElementType;
   active?: (v: string) => boolean;
+  disabled?: boolean;
 }[] = [
   {
     to: "/",
     label: "Вакансии",
     icon: BriefcaseIcon,
-    active: (pathname) => pathname.includes("/vacancy"),
+    active: (pathname) =>
+      pathname.includes("/vacancy") && !pathname.includes("/vacancy/new"),
   },
   {
-    to: "/login",
+    to: "/tasks",
     label: "Мои задачи",
     icon: CheckSquareIcon,
   },
@@ -43,17 +50,21 @@ const items: {
     to: "/login",
     label: "Мои кандидаты",
     icon: UsersIcon,
+    disabled: true,
   },
   {
     to: "/login",
     label: "Качество подбора",
     icon: StarIcon,
+    disabled: true,
   },
 ];
 
 export const Sidebar: FC<{ hideSidebar?: boolean }> = observer(
   ({ hideSidebar }) => {
     const { pathname } = useLocation();
+    const navigate = useNavigate();
+
     return (
       <AnimatePresence mode="popLayout" initial={false}>
         {!hideSidebar && (
@@ -71,9 +82,11 @@ export const Sidebar: FC<{ hideSidebar?: boolean }> = observer(
                   <li key={i}>
                     <Link
                       to={item.to}
+                      disabled={item.disabled}
                       className={cn(
                         item.active?.(pathname) && "active",
-                        "font-medium flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded-md",
+                        "font-medium flex items-center gap-2 px-4 py-2 text-sm text-slate-700 rounded-md",
+                        !item.disabled && "hover:bg-slate-100",
                         "[&.active]:text-primary",
                       )}
                     >
@@ -84,13 +97,16 @@ export const Sidebar: FC<{ hideSidebar?: boolean }> = observer(
                 ))}
               </ul>
               <div className="mx-6 my-5">
-                <Link
-                  to="/vacancy/new"
-                  className={cn(buttonVariants(), "w-full gap-1")}
+                <Button
+                  onClick={() => {
+                    navigate({ to: "/vacancy/new" });
+                  }}
+                  className={"w-full gap-1"}
+                  disabled={pathname.includes("/vacancy/new")}
                 >
                   <PlusIcon className="size-5" />
                   Создать вакансию
-                </Link>
+                </Button>
               </div>
               <AuthState />
             </ScrollArea>

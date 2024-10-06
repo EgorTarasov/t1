@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as BaseIndexImport } from './routes/_base/index'
+import { Route as BaseTasksImport } from './routes/_base/tasks'
 import { Route as BaseVacancyNewImport } from './routes/_base/vacancy/new'
 import { Route as BaseVacancyIdImport } from './routes/_base/vacancy/$id'
 
@@ -47,6 +48,11 @@ const BaseLoginLazyRoute = BaseLoginLazyImport.update({
   getParentRoute: () => BaseLazyRoute,
 } as any).lazy(() => import('./routes/_base/login.lazy').then((d) => d.Route))
 
+const BaseTasksRoute = BaseTasksImport.update({
+  path: '/tasks',
+  getParentRoute: () => BaseLazyRoute,
+} as any)
+
 const BaseVacancyNewRoute = BaseVacancyNewImport.update({
   path: '/vacancy/new',
   getParentRoute: () => BaseLazyRoute,
@@ -67,6 +73,13 @@ declare module '@tanstack/react-router' {
       fullPath: ''
       preLoaderRoute: typeof BaseLazyImport
       parentRoute: typeof rootRoute
+    }
+    '/_base/tasks': {
+      id: '/_base/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof BaseTasksImport
+      parentRoute: typeof BaseLazyImport
     }
     '/_base/login': {
       id: '/_base/login'
@@ -110,6 +123,7 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   BaseLazyRoute: BaseLazyRoute.addChildren({
+    BaseTasksRoute,
     BaseLoginLazyRoute,
     BaseRegisterLazyRoute,
     BaseIndexRoute,
@@ -132,12 +146,17 @@ export const routeTree = rootRoute.addChildren({
     "/_base": {
       "filePath": "_base.lazy.tsx",
       "children": [
+        "/_base/tasks",
         "/_base/login",
         "/_base/register",
         "/_base/",
         "/_base/vacancy/$id",
         "/_base/vacancy/new"
       ]
+    },
+    "/_base/tasks": {
+      "filePath": "_base/tasks.tsx",
+      "parent": "/_base"
     },
     "/_base/login": {
       "filePath": "_base/login.lazy.tsx",
