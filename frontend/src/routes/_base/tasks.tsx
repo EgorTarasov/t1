@@ -25,7 +25,10 @@ const Page = observer(() => {
         header: "Этап",
         accessor: (v) => (
           <div className="flex items-center text-nowrap gap-1">
-            <button className="border rounded-md size-6 flex items-center justify-center group">
+            <button
+              className="border rounded-md size-6 flex items-center justify-center group"
+              onClick={() => toast.info("Этап нельзя завершить")}
+            >
               <CheckIcon className="size-4 group-hover:opacity-100 opacity-0" />
             </button>
             {v.stage_name}
