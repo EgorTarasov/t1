@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { AuthState } from "./AuthState";
-import { Button } from "../ui/button";
+import { Button, buttonVariants } from "../ui/button";
 import { FC } from "react";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -80,10 +80,13 @@ export const Sidebar: FC<{ hideSidebar?: boolean }> = observer(
                 ))}
               </ul>
               <div className="mx-6 my-5">
-                <Button className="w-full gap-1">
+                <Link
+                  to="/vacancy/new"
+                  className={cn(buttonVariants(), "w-full gap-1")}
+                >
                   <PlusIcon className="size-5" />
                   Создать вакансию
-                </Button>
+                </Link>
               </div>
               <AuthState />
             </ScrollArea>

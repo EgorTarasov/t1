@@ -66,6 +66,15 @@
   #app {
     @apply bg-gray-50 text-gray-900 transition-all duration-150 overflow-hidden flex antialiased;
   }
+  *::-webkit-scrollbar {
+    @apply w-1 h-1;
+  }
+  *::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+  }
+  *::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded-full;
+  }
 }
 
 html,

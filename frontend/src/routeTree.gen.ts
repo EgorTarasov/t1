@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as BaseIndexImport } from './routes/_base/index'
+import { Route as BaseVacancyNewImport } from './routes/_base/vacancy/new'
 import { Route as BaseVacancyIdImport } from './routes/_base/vacancy/$id'
 
 // Create Virtual Routes
@@ -45,6 +46,11 @@ const BaseLoginLazyRoute = BaseLoginLazyImport.update({
   path: '/login',
   getParentRoute: () => BaseLazyRoute,
 } as any).lazy(() => import('./routes/_base/login.lazy').then((d) => d.Route))
+
+const BaseVacancyNewRoute = BaseVacancyNewImport.update({
+  path: '/vacancy/new',
+  getParentRoute: () => BaseLazyRoute,
+} as any)
 
 const BaseVacancyIdRoute = BaseVacancyIdImport.update({
   path: '/vacancy/$id',
@@ -90,6 +96,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BaseVacancyIdImport
       parentRoute: typeof BaseLazyImport
     }
+    '/_base/vacancy/new': {
+      id: '/_base/vacancy/new'
+      path: '/vacancy/new'
+      fullPath: '/vacancy/new'
+      preLoaderRoute: typeof BaseVacancyNewImport
+      parentRoute: typeof BaseLazyImport
+    }
   }
 }
 
@@ -101,6 +114,7 @@ export const routeTree = rootRoute.addChildren({
     BaseRegisterLazyRoute,
     BaseIndexRoute,
     BaseVacancyIdRoute,
+    BaseVacancyNewRoute,
   }),
 })
 
@@ -121,7 +135,8 @@ export const routeTree = rootRoute.addChildren({
         "/_base/login",
         "/_base/register",
         "/_base/",
-        "/_base/vacancy/$id"
+        "/_base/vacancy/$id",
+        "/_base/vacancy/new"
       ]
     },
     "/_base/login": {
@@ -138,6 +153,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/_base/vacancy/$id": {
       "filePath": "_base/vacancy/$id.tsx",
+      "parent": "/_base"
+    },
+    "/_base/vacancy/new": {
+      "filePath": "_base/vacancy/new.tsx",
       "parent": "/_base"
     }
   }
