@@ -57,6 +57,7 @@ async def return_active(
         orm.joinedload(Vacancy.vacancy_skills),
         orm.joinedload(Vacancy.recruiter),
         orm.joinedload(Vacancy.hr),
+        orm.joinedload(Vacancy.vacancy_candidates),
     )
     if isAppointed is not None:
         stmt = stmt.filter(
