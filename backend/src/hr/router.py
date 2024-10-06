@@ -21,13 +21,11 @@ from .schemas import (
     AllCandidatesPotentialDto,
     AllCandidatesVacancyDto,
     CandidateDto,
-    VacancyStats,
     RoadmapDto,
     SkillCreate,
     SkillSearchResult,
     VacancyCreate,
     VacancyDTO,
-    RecrutierStage,
 )
 
 router = APIRouter(
