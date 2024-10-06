@@ -1,28 +1,8 @@
 import { z } from "zod";
 import { Priority } from "@/types/priority.type";
+import { SkillDto } from "./skill.model";
 
 export namespace VacancyDto {
-  const DetailedVacancySchema = z.object({
-    id: z.number(),
-    name: z.string(),
-    priority: Priority.Schema,
-    deadline: z.string().datetime(),
-    profession: z.string(),
-    area: z.string(),
-    supervisor: z.string(),
-    city: z.string(),
-    experience_from: z.number(),
-    experience_to: z.number(),
-    education: z.string(),
-    quantity: z.number(),
-    description: z.string(),
-    type_of_employment: z.string(),
-    vacancy_skills: z.array(z.any()),
-    recruiter: z.null(),
-    hr: z.null(),
-    created_at: z.string().datetime(),
-  });
-
   const SourceSchema = z.object({
     name: z.string(),
     count: z.number(),
@@ -60,17 +40,16 @@ export namespace VacancyDto {
     quantity: z.number(),
     description: z.string(),
     type_of_employment: z.string(),
-    vacancy_skills: z.array(
-      z.object({
-        name: z.string(),
-        id: z.number(),
-      }),
-    ),
+    vacancy_skills: z.array(SkillDto.Item),
+    // additional_skills: z.array(z.any()),
+    recruiter: z.null(),
+    hr: z.null(),
+    created_at: z.string(),
   });
   export type Item = z.infer<typeof Item>;
 
   export const DetailedItem = z.object({
-    vacancy: DetailedVacancySchema,
+    vacancy: Item,
     stages: z.array(StageSchema),
   });
   export type DetailedItem = z.infer<typeof DetailedItem>;
@@ -92,7 +71,16 @@ export const mockVacancy: VacancyDto.DetailedItem = {
     quantity: 1,
     description: "Разработчик",
     type_of_employment: "Полная занятость",
-    vacancy_skills: [],
+    vacancy_skills: [
+      {
+        id: 1,
+        name: "JavaScript",
+      },
+      {
+        id: 2,
+        name: "TypeScript",
+      },
+    ],
     recruiter: null,
     hr: null,
     created_at: "2021-01-01T00:00:00",

@@ -19,11 +19,11 @@ const columns: Column<VacancyDto.Item>[] = [
   },
   {
     header: "Дата создания",
-    accessor: (item) => new Date(item.deadline).toLocaleDateString(),
+    accessor: (item) => new Date(item.created_at).toLocaleDateString("ru-RU"),
   },
   {
     header: "До дедлайна",
-    accessor: (item) => new Date(item.deadline).toLocaleDateString(),
+    accessor: (item) => new Date(item.deadline).toLocaleDateString("ru-RU"),
   },
 ];
 

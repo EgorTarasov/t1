@@ -1,3 +1,4 @@
+import { cn } from "@/utils/cn";
 import {
   Table,
   TableCaption,
@@ -8,19 +9,21 @@ import {
   TableCell,
   TableFooter,
 } from "./table";
+import { ReactNode } from "@tanstack/react-router";
 
 export interface Column<T> {
-  header: string;
-  accessor: (item: T) => React.ReactNode;
+  header: ReactNode;
+  accessor?: (item: T) => ReactNode;
   className?: string;
 }
 
 interface DataTableProps<T> {
   caption?: string;
-  data: T[];
+  data: NoInfer<T>[];
   columns: Column<T>[];
   footer?: React.ReactNode;
   onRowClick?: (item: T) => void;
+  className?: string;
 }
 
 export const DataTable = <T,>({
@@ -29,14 +32,18 @@ export const DataTable = <T,>({
   columns,
   footer,
   onRowClick,
+  className,
 }: DataTableProps<T>) => {
   return (
-    <Table>
+    <Table className={className}>
       {caption && <TableCaption>{caption}</TableCaption>}
       <TableHeader>
         <TableRow>
           {columns.map((column, index) => (
-            <TableHead key={index} className={column.className}>
+            <TableHead
+              key={index}
+              className={cn("whitespace-pre text-nowrap", column.className)}
+            >
               {column.header}
             </TableHead>
           ))}
@@ -47,15 +54,25 @@ export const DataTable = <T,>({
           <TableRow
             key={rowIndex}
             onClick={onRowClick ? () => onRowClick(item) : undefined}
+            tabIndex={onRowClick ? 0 : undefined}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                onRowClick?.(item);
+              }
+            }}
             className={
               onRowClick
                 ? "cursor-pointer hover:bg-slate-100 transition-colors"
-                : undefined
+                : "hover:bg-transparent"
             }
           >
             {columns.map((column, colIndex) => (
               <TableCell key={colIndex} className={column.className}>
-                {column.accessor(item)}
+                {column.accessor
+                  ? column.accessor(item)
+                  : typeof item === "string" || typeof item === "number"
+                    ? item
+                    : null}
               </TableCell>
             ))}
           </TableRow>

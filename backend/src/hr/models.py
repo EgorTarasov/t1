@@ -33,14 +33,15 @@ class Vacancy(Base, TimestampMixin):
     recruiter_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
-
     salary_low: Mapped[int] = mapped_column(
         sa.Integer,
         nullable=False,
         default=30_000,
         server_default="30000",
     )
+
     salary_high: Mapped[int] = mapped_column(
+
         sa.Integer,
         nullable=False,
         default=70_000,

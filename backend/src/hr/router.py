@@ -11,7 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_db
 
-from .models import Skill, Vacancy, RoadmapStage, Roadmap
+
+from .models import Skill, Vacancy, Roadmap, RoadmapStage
+
 from .schemas import (
     EXAMPLE_ALL_ACTIVE,
     EXAMPLE_STAGES,
