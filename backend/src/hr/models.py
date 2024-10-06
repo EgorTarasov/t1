@@ -184,6 +184,8 @@ class Candidate(Base):
     country: Mapped[str] = mapped_column(sa.Text)
 
     vacancies = relationship(
+
+    vacancies = relationship(
         "Vacancy",
         back_populates="vacancy_candidates",
         secondary="vacancy_candidates",

@@ -309,7 +309,7 @@ async def get_potential_vacancies(
                 Vacancy.vacancy_candidates,
             ),
         )
-        .filter(Vacancy.id == vacancy_id)
+        .filter(Vacancy.id == vacancy_id),
     )
     db_vacancy = await db.execute(stmt)
     result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
