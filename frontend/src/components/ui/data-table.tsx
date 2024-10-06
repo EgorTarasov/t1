@@ -77,6 +77,13 @@ export const DataTable = <T,>({
             ))}
           </TableRow>
         ))}
+        {data.length === 0 && (
+          <TableRow>
+            <TableCell colSpan={columns.length} className="text-center">
+              <p className="text-slate-500">Ничего не найдено</p>
+            </TableCell>
+          </TableRow>
+        )}
       </TableBody>
       {footer && (
         <TableFooter>

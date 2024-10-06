@@ -14,8 +14,8 @@ export const StagesForm: FC<Props> = observer((x) => {
   return (
     <div className="col-span-2 w-full space-y-3">
       <h3 className="text-xl font-medium">Этапы отбора</h3>
-      <div className="flex w-full *:flex-1 gap-4">
-        <div className="flex gap-2 flex-col">
+      <div className="flex w-full gap-4">
+        <div className="flex gap-2 flex-col flex-1">
           <Label>Название этапа</Label>
           {x.vm.stages.map((v) => (
             <div key={v.id}>
@@ -33,7 +33,7 @@ export const StagesForm: FC<Props> = observer((x) => {
             <PlusIcon />
           </Button>
         </div>
-        <div className="flex gap-2 flex-col">
+        <div className="flex gap-2 flex-col sm:flex-1">
           <Label>SLA этапа в днях</Label>
           {x.vm.stages.map((v) => (
             <div key={v.id} className="flex items-center gap-2">

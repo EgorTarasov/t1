@@ -6,6 +6,7 @@ import { ChartSection } from "./chart-section";
 import { Column, DataTable } from "@/components/ui/data-table";
 import { CandidatesDto } from "@/api/models/candidates.model";
 import { AddCandidateModal } from "./add-candidate.modal";
+import { LoadingWrapper } from "@/components/ui/loaders/LoadingWrapper";
 
 const activeColumns: Column<CandidatesDto.ActiveCandidate>[] = [
   {
@@ -94,6 +95,8 @@ export const CandidatesView: FCVM<VacancyStore> = observer((x) => {
   useEffect(() => {
     x.vm.loadCandidates();
   }, [x.vm]);
+
+  if (!x.vm.candidatesLoaded) return <LoadingWrapper />;
 
   return (
     <div className="flex flex-col gap-4">

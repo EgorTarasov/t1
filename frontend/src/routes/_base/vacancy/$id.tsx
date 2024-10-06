@@ -5,6 +5,12 @@ import { AnalyticsView } from "@/components/pages/vacancy/analytics.view";
 import { CandidatesView } from "@/components/pages/vacancy/candidates.view";
 import { OverviewView } from "@/components/pages/vacancy/overview.view";
 import { Stats } from "@/components/pages/vacancy/stats.view";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -54,7 +60,7 @@ const Page = observer(() => {
     <MainLayout
       header={
         <div>
-          <h1 className="text-3xl font-semibold text-slate-900">
+          <h1 className="text-3xl font-semibold text-slate-900 pr-12 sm:pr-0">
             {vm.vacancy.vacancy.name}
           </h1>
           <p className="text-slate-500">{vm.vacancy.vacancy.area}</p>
@@ -90,26 +96,56 @@ const Page = observer(() => {
         </div>
       }
     >
-      <Tabs value={tab} onValueChange={(value) => setTab(value)}>
-        <TabsList className="overflow-x-auto">
-          <TabsTrigger value="overview">О вакансии</TabsTrigger>
-          <TabsTrigger value="stats">Статистика по вакансии</TabsTrigger>
-          <TabsTrigger value="candidates">Кандидаты</TabsTrigger>
-          <TabsTrigger value="analytics">Анализ рынка по вакансии</TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview">
-          <OverviewView vm={vm} />
-        </TabsContent>
-        <TabsContent value="stats">
-          <Stats vacancy={vm.vacancy} />
-        </TabsContent>
-        <TabsContent value="candidates">
-          <CandidatesView vm={vm} />
-        </TabsContent>
-        <TabsContent value="analytics">
-          <AnalyticsView vm={vm} />
-        </TabsContent>
-      </Tabs>
+      <Accordion type="single" collapsible className="sm:hidden">
+        <AccordionItem value="overview">
+          <AccordionTrigger>О вакансии</AccordionTrigger>
+          <AccordionContent>
+            <OverviewView vm={vm} />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="stats">
+          <AccordionTrigger>Статистика по вакансии</AccordionTrigger>
+          <AccordionContent>
+            <Stats vacancy={vm.vacancy} />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="candidates">
+          <AccordionTrigger>Кандидаты</AccordionTrigger>
+          <AccordionContent>
+            <CandidatesView vm={vm} />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="analytics">
+          <AccordionTrigger>Анализ рынка по вакансии</AccordionTrigger>
+          <AccordionContent>
+            <AnalyticsView vm={vm} />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+      <div className="hidden sm:block">
+        <Tabs value={tab} onValueChange={(value) => setTab(value)}>
+          <TabsList className="overflow-x-auto">
+            <TabsTrigger value="overview">О вакансии</TabsTrigger>
+            <TabsTrigger value="stats">Статистика по вакансии</TabsTrigger>
+            <TabsTrigger value="candidates">Кандидаты</TabsTrigger>
+            <TabsTrigger value="analytics">
+              Анализ рынка по вакансии
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">
+            <OverviewView vm={vm} />
+          </TabsContent>
+          <TabsContent value="stats">
+            <Stats vacancy={vm.vacancy} />
+          </TabsContent>
+          <TabsContent value="candidates">
+            <CandidatesView vm={vm} />
+          </TabsContent>
+          <TabsContent value="analytics">
+            <AnalyticsView vm={vm} />
+          </TabsContent>
+        </Tabs>
+      </div>
     </MainLayout>
   );
 });
