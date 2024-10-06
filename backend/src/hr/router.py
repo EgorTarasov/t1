@@ -10,13 +10,22 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_db
 
-from .models import Skill, Vacancy
-from .schemas import (EXAMPLE_ALL_ACTIVE, EXAMPLE_STAGES,
-                      EXAMPLES_ALL_DECLINED, EXAMPLES_ALL_POTENTIAL,
-                      AllCandidatesDeclinedDto, AllCandidatesPotentialDto,
-                      AllCandidatesVacancyDto, CandidateDto, RoadmapDto,
-                      SkillCreate, SkillSearchResult, VacancyCreate,
-                      VacancyDTO)
+from .models import Skill, Vacancy, Roadmap, RoadmapStage
+from .schemas import (
+    EXAMPLE_ALL_ACTIVE,
+    EXAMPLE_STAGES,
+    EXAMPLES_ALL_DECLINED,
+    EXAMPLES_ALL_POTENTIAL,
+    AllCandidatesDeclinedDto,
+    AllCandidatesPotentialDto,
+    AllCandidatesVacancyDto,
+    CandidateDto,
+    RoadmapDto,
+    SkillCreate,
+    SkillSearchResult,
+    VacancyCreate,
+    VacancyDTO,
+)
 
 router = APIRouter(
     prefix="/vacancies",
@@ -96,6 +105,7 @@ async def create_vacancy(
         description=vacancy.description,
         type_of_employment=vacancy.type_of_employment,
     )
+    db.add(db_vacancy)
     stmt = sa.select(Skill).where(Skill.id.in_(vacancy.key_skills))
 
     required_skills = (await db.execute(stmt)).scalars()
@@ -106,11 +116,24 @@ async def create_vacancy(
 
     db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)  # type: ignore
     db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)  # type: ignore
+    await db.flush()
+    await db.refresh(db_vacancy, attribute_names=["id"])
+
+    db_roadmap = Roadmap(vacancy_id=db_vacancy.id)
+    db.add(db_roadmap)
+    await db.flush()
+    await db.refresh(db_roadmap, ["id"])
+    for stage in vacancy.stages:
+        db_stage = RoadmapStage(
+            name=stage.name,
+            order=stage.order,
+            roadmap_id=db_roadmap.id,
+            duration=stage.duration,
+        )
+        db.add(db_stage)
 
     try:
-        db.add(db_vacancy)
         await db.commit()
-        await db.refresh(db_vacancy, attribute_names=["vacancy_skills"])
     except Exception as e:
         logger.error(f"Error: {e}")
         await db.rollback()
@@ -174,16 +197,8 @@ async def get_active_vacancies(
     stmt = (
         sa.select(Vacancy)
         .options(
-            orm.joinedload(
-                Vacancy.vacancy_skills,
-            ),
-            orm.joinedload(
-                Vacancy.vacancy_candidates,
-            ),
-            ),
-            orm.joinedload(
-                Vacancy.vacancy_candidates,
-            ),
+            orm.joinedload(Vacancy.vacancy_skills),
+            orm.joinedload(Vacancy.vacancy_candidates),
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -195,16 +210,16 @@ async def get_active_vacancies(
 
     vacancy: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
     candidates = []
-    for candidate in vacancy.vacancy_candidates:
-        candidates.append(
-            # CandidateVacancyDto(
-            #     source=candidate.src,
-            #     candidate_id=candidate.id,
-            # date_of_accept: dt.datetime = Field(..., description="The education level required")
-            # stage_name: str = Field(..., description="")
-            # similarity: int = Field(..., description="")
-            # )
-        )
+    # for candidate in vacancy.vacancy_candidates:
+    # candidates.append(
+    # CandidateVacancyDto(
+    #     source=candidate.src,
+    #     candidate_id=candidate.id,
+    # date_of_accept: dt.datetime = Field(..., description="The education level required")
+    # stage_name: str = Field(..., description="")
+    # similarity: int = Field(..., description="")
+    # )
+    # )
     logger.error(candidates)
     # if not result:
     #     raise HTTPException(status_code=404, detail="Vacancy not found")
@@ -222,16 +237,8 @@ async def get_declined_vacancies(
     stmt = (
         sa.select(Vacancy)
         .options(
-            orm.joinedload(
-                Vacancy.vacancy_skills,
-            ),
-            orm.joinedload(
-                Vacancy.vacancy_candidates,
-            ),
-            ),
-            orm.joinedload(
-                Vacancy.vacancy_candidates,
-            ),
+            orm.joinedload(Vacancy.vacancy_skills),
+            orm.joinedload(Vacancy.vacancy_candidates),
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -247,7 +254,6 @@ async def get_declined_vacancies(
 
 @router.get("/candidates/potential/{vacancy_id}")
 async def get_potential_vacancies(
-async def get_potential_vacancies(
     vacancy_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> AllCandidatesPotentialDto:
@@ -257,10 +263,6 @@ async def get_potential_vacancies(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            ),
-            orm.joinedload(
-                Vacancy.vacancy_candidates,
-            ),
             ),
             orm.joinedload(
                 Vacancy.vacancy_candidates,

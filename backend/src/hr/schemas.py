@@ -6,6 +6,12 @@ from pydantic import BaseModel, ConfigDict, Field
 from src.auth.schemas import UserDto
 
 
+class RoadmapStageCreate(BaseModel):
+    order: int = Field(1, description="Порядок этапа в воронке")
+    name: str = Field("HR скрининг", description="Название этапа")
+    duration: int = Field(1, description="Продолжительность этапа в днях")
+
+
 class SkillBase(BaseModel):
     """SkillBase"""
 
@@ -71,6 +77,14 @@ class VacancyCreate(BaseModel):
     description: str = Field("Разработчик", title="Описание вакансии")
 
     type_of_employment: str = Field("Полная занятость", title="Тип занятости")
+
+    salary_low: int = Field(30000, title="Нижняя граница зп")
+    salary_high: int = Field(150000, title="Верхняя граница зп")
+
+    stages: list[RoadmapStageCreate] = Field(
+        [RoadmapStageCreate()],  # type: ignore
+        title="Этапы воронки",
+    )
 
 
 class CandidateDto(BaseModel):
