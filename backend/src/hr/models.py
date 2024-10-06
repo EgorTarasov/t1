@@ -33,8 +33,18 @@ class Vacancy(Base, TimestampMixin):
     recruiter_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
-    salary_high: Mapped[int] = mapped_column(sa.Integer, nullable=False)
-    salary_low: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    salary_high: Mapped[int] = mapped_column(
+        sa.Integer,
+        nullable=False,
+        default=30_000,
+        server_default="30000",
+    )
+    salary_low: Mapped[int] = mapped_column(
+        sa.Integer,
+        nullable=False,
+        default=70_000,
+        server_default="70000",
+    )
     hr_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
@@ -165,8 +175,6 @@ class Candidate(Base):
     cv_url: Mapped[str] = mapped_column(sa.Text, nullable=False)
     raw_json: Mapped[dict[str, tp.Any]] = mapped_column(JSON, nullable=False)
     src: Mapped[str] = mapped_column(sa.Text, default="hh", nullable=False)
-
-    vacancies = relationship(
 
     vacancies = relationship(
         "Vacancy",
