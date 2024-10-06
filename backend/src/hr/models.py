@@ -157,13 +157,14 @@ class RoadmapStage(Base, TimestampMixin):
 class Candidate(Base):
     """Кандидаты"""
 
+
     __tablename__ = "candidates"  # type: ignore
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     dob: Mapped[dt.date] = mapped_column(sa.Date, nullable=False)
     # Объединенение по ;
     spezialization: Mapped[str] = mapped_column(sa.Text, nullable=False)
     # Объединенение по ;
-    education: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    education: Mapped[list[dict[str, tp.Any]]] = mapped_column(JSON, nullable=False)
     candidate_skills = relationship(
         "Skill",
         back_populates="candidates",
@@ -171,7 +172,7 @@ class Candidate(Base):
     )
     description: Mapped[str] = mapped_column(sa.Text, nullable=False)
     # Объединенение по :
-    experience: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    experience: Mapped[list[dict[str, tp.Any]]] = mapped_column(JSON, nullable=False)
     cv_url: Mapped[str] = mapped_column(sa.Text, nullable=False)
     raw_json: Mapped[dict[str, tp.Any]] = mapped_column(JSON, nullable=False)
     src: Mapped[str] = mapped_column(sa.Text, default="hh", nullable=False)
