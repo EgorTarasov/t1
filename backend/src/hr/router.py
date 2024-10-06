@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_db
 
-from .models import Skill, Vacancy, Roadmap, RoadmapStage
+from .models import Skill, Vacancy, RoadmapStage, Roadmap
 from .schemas import (
     EXAMPLE_ALL_ACTIVE,
     EXAMPLE_STAGES,
@@ -26,6 +26,9 @@ from .schemas import (
     SkillSearchResult,
     VacancyCreate,
     VacancyDTO,
+    VacancyStats,
+    RecrutierStage,
+    EXAMPLE_STAGES,
 )
 
 router = APIRouter(
@@ -308,7 +311,7 @@ async def get_potential_vacancies(
                 Vacancy.vacancy_candidates,
             ),
         )
-        .filter(Vacancy.id == vacancy_id),
+        .filter(Vacancy.id == vacancy_id)
     )
     db_vacancy = await db.execute(stmt)
     result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
