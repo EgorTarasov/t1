@@ -33,13 +33,14 @@ class Vacancy(Base, TimestampMixin):
     recruiter_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
-    salary_high: Mapped[int] = mapped_column(
+
+    salary_low: Mapped[int] = mapped_column(
         sa.Integer,
         nullable=False,
         default=30_000,
         server_default="30000",
     )
-    salary_low: Mapped[int] = mapped_column(
+    salary_high: Mapped[int] = mapped_column(
         sa.Integer,
         nullable=False,
         default=70_000,
@@ -157,7 +158,6 @@ class RoadmapStage(Base, TimestampMixin):
 class Candidate(Base):
     """Кандидаты"""
 
-
     __tablename__ = "candidates"  # type: ignore
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     dob: Mapped[dt.date] = mapped_column(sa.Date, nullable=False)
@@ -176,6 +176,12 @@ class Candidate(Base):
     cv_url: Mapped[str] = mapped_column(sa.Text, nullable=False)
     raw_json: Mapped[dict[str, tp.Any]] = mapped_column(JSON, nullable=False)
     src: Mapped[str] = mapped_column(sa.Text, default="hh", nullable=False)
+
+    first_name: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    last_name: Mapped[str] = mapped_column(sa.Text, nullable=False)
+
+    city: Mapped[str] = mapped_column(sa.Text)
+    country: Mapped[str] = mapped_column(sa.Text)
 
     vacancies = relationship(
         "Vacancy",
