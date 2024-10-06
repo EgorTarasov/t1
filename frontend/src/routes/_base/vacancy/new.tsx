@@ -1,6 +1,6 @@
 import { MainLayout } from "@/components/hoc/layouts/main.layout";
 import { ChartSection } from "@/components/pages/vacancy/chart-section";
-import { IconInput, Input } from "@/components/ui/input";
+import { IconInput } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Priority } from "@/types/priority.type";
 import { checkAuth } from "@/utils/check-grant";
@@ -17,13 +17,10 @@ import { NewVacancyStore } from "@/stores/new-vacancy";
 import { useViewModel } from "@/utils/vm";
 import { SkillsDropdown } from "@/components/dropdowns/SkillsDropdown";
 import { Textarea } from "@/components/ui/textarea";
-import DropdownMultiple from "@/components/DropdownMultiple";
 import { StagesForm } from "@/components/pages/vacancy/StagesForm";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import AutoFormInput from "@/components/ui/auto-form/fields/input";
-import AutoForm from "@/components/ui/auto-form";
-import { z } from "zod";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const Page = observer(() => {
   const vm = useViewModel(NewVacancyStore);
@@ -37,10 +34,10 @@ const Page = observer(() => {
           collapsible={false}
           allowOverflow
         >
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
             <IconInput
               id="title"
-              className="w-[300px]"
+              className="w-full sm:w-[300px]"
               value={vm.name}
               onChange={(e) => {
                 vm.name = e.target.value;
@@ -57,7 +54,7 @@ const Page = observer(() => {
                   vm.priority = Number(value);
                 }}
               >
-                <SelectTrigger id="priority" className="w-[180px]">
+                <SelectTrigger id="priority" className="sm:w-[180px]">
                   <SelectValue placeholder="Выберите приоритет" />
                 </SelectTrigger>
                 <SelectContent>
@@ -67,6 +64,54 @@ const Page = observer(() => {
                 </SelectContent>
               </Select>
             </div>
+            <IconInput
+              label="Рекрутер"
+              placeholder="Иванов Иван"
+              // value={vm.supervisor}
+              // onChange={(e) => {
+              //   vm.supervisor = e.target.value;
+              // }}
+            />
+            <div>
+              <Label htmlFor="deadline">Дедлайн</Label>
+              <DatePicker
+                fromDate={new Date()}
+                date={vm.deadline}
+                setDate={(v) => v && (vm.deadline = v)}
+              />
+            </div>
+            <IconInput
+              label="Профессия"
+              placeholder="Фронтенд разработчик"
+              value={vm.profession}
+              onChange={(e) => {
+                vm.profession = e.target.value;
+              }}
+            />
+            <IconInput
+              label="Подразделение"
+              placeholder="Отдел разработки"
+              value={vm.area}
+              onChange={(e) => {
+                vm.area = e.target.value;
+              }}
+            />
+            <IconInput
+              label="Локация"
+              placeholder="Москва"
+              value={vm.city}
+              onChange={(e) => {
+                vm.city = e.target.value;
+              }}
+            />
+            <IconInput
+              label="Руководитель"
+              placeholder="Иванов Иван"
+              value={vm.supervisor}
+              onChange={(e) => {
+                vm.supervisor = e.target.value;
+              }}
+            />
           </div>
         </ChartSection>
         <ChartSection
@@ -74,7 +119,7 @@ const Page = observer(() => {
           collapsible={false}
           allowOverflow
         >
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4">
             <div className="grid grid-cols-[1fr_auto_1fr] w-fit items-center gap-x-1 h-fit">
               <Label
                 htmlFor="experience_from"
@@ -98,7 +143,7 @@ const Page = observer(() => {
                   }
                   vm.experienceFrom = e.target.value;
                 }}
-                className="w-24"
+                className="w-full sm:w-24"
               />
               <span>–</span>
               <IconInput
@@ -113,7 +158,7 @@ const Page = observer(() => {
                   }
                   vm.experienceTo = e.target.value;
                 }}
-                className="w-24"
+                className="w-full sm:w-24"
               />
             </div>
             <IconInput
@@ -164,7 +209,7 @@ const Page = observer(() => {
           collapsible={false}
           allowOverflow
         >
-          <div className="grid grid-cols-2 w-full gap-6 gap-x-4">
+          <div className="flex flex-col sm:grid grid-cols-2 w-full gap-6 gap-x-4">
             <div>
               <Label htmlFor="description">Описание</Label>
               <Textarea
@@ -176,8 +221,8 @@ const Page = observer(() => {
                 }}
               />
             </div>
-            <div className="grid grid-cols-2">
-              <div className="grid grid-cols-[1fr_auto_1fr] w-fit items-center gap-x-1 h-fit">
+            <div className="flex flex-col sm:grid grid-cols-2">
+              <div className="grid grid-cols-[1fr_auto_1fr] w-full sm:w-fit items-center gap-x-1 h-fit">
                 <Label
                   htmlFor="experience_from"
                   className="col-span-3 mt-1.5 mb-1"
@@ -191,7 +236,7 @@ const Page = observer(() => {
                   onChange={(e) => {
                     vm.salaryLow = e.target.value;
                   }}
-                  className="w-24"
+                  className="w-full sm:w-24"
                 />
                 <span>–</span>
                 <IconInput
@@ -202,15 +247,16 @@ const Page = observer(() => {
                   onChange={(e) => {
                     vm.salaryHigh = e.target.value;
                   }}
-                  className="w-24"
+                  className="w-full sm:w-24"
                 />
               </div>
             </div>
             <StagesForm vm={vm} />
           </div>
         </ChartSection>
-        <div className="w-full flex justify-end">
+        <div className="w-full flex sm:justify-end">
           <Button
+            className="w-full sm:w-auto"
             onClick={() => {
               if (vm.validate()) {
                 toast.promise(vm.create(navigate), {

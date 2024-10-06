@@ -1,11 +1,37 @@
 import { VacancyStore } from "@/stores/vanacy.store";
 import { cn } from "@/utils/cn";
 import { observer } from "mobx-react-lite";
-import { FC } from "react";
+import { FC, useState } from "react";
 
 interface Props {
   vm: VacancyStore;
 }
+
+const LongLabelValue: FC<{ label: string; value: string }> = (x) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className={cn("space-y-2 text-sm")}>
+      <div className="font-semibold">{x.label}:</div>
+      <div className="inline">
+        <span
+          className={cn(
+            "text-ellipsis overflow-hidden line-clamp-3",
+            expanded && "block",
+          )}
+        >
+          {x.value}
+        </span>
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-primary font-medium"
+        >
+          {expanded ? "Скрыть" : "Развернуть"}
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const LabelValue: FC<{ label: string; value: string; row?: boolean }> = ({
   label,
@@ -48,7 +74,7 @@ const LabelList: FC<{ label: string; values: string[] }> = ({
 
 export const OverviewView: FC<Props> = observer((x) => {
   return (
-    <div className="space-y-4 pt-8">
+    <div className="space-y-4">
       <div className="space-y-4 bg-white p-4 rounded-xl">
         <h2 className="text-xl font-medium">Основная информация</h2>
         <div className="flex gap-8 flex-wrap">
@@ -62,7 +88,10 @@ export const OverviewView: FC<Props> = observer((x) => {
             value={x.vm.vacancy.vacancy.type_of_employment}
           />
         </div>
-        <LabelValue label="Описание" value={x.vm.vacancy.vacancy.description} />
+        <LongLabelValue
+          label="Описание"
+          value={x.vm.vacancy.vacancy.description}
+        />
         <LabelList
           label="Источники размещения вакансии"
           values={x.vm.vacancy.stages[0].sources.map((x) => x.name)}

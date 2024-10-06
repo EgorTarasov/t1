@@ -23,4 +23,9 @@ export namespace CandidatesEndpoint {
         candidates: z.array(CandidatesDto.PotentialCandidate),
       }),
     });
+
+  export const getAnalytics = (vacancyId: number) =>
+    api.get(`/vacancies/stats/${vacancyId}`, {
+      schema: CandidatesDto.Analytics,
+    });
 }

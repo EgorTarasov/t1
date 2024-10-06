@@ -19,7 +19,7 @@ export const ChartSection: FC<Props> = observer(
 
     return (
       <section className="bg-white rounded-2xl border w-full py-5">
-        <div className="flex justify-between px-5 pb-0 items-center gap-1">
+        <div className="grid-cols-[auto_auto] grid-flow-dense grid lg:flex justify-between px-5 pb-0 items-center gap-1">
           <h2
             className={cn(
               "text-2xl font-medium",
@@ -28,8 +28,10 @@ export const ChartSection: FC<Props> = observer(
           >
             {x.title}
           </h2>
+          {x.actions && (
+            <div className="col-span-2 ml-auto">{!collapsed && x.actions}</div>
+          )}
           <div className="flex items-center gap-1">
-            {!collapsed && x.actions}
             {collapsible && (
               <Button
                 variant="ghost"
