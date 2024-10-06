@@ -183,7 +183,7 @@ class RoadmapDto(BaseModel):
     stages: list[StageDto] = Field(..., description="Список этапов воронки")
 
 
-EXAMPLE_STAGES = [
+EXAMPLE_STAGES_1 = [
     StageDto(
         id=1,
         name="Hr скриннинг",
@@ -267,6 +267,304 @@ EXAMPLE_STAGES = [
         decline_reasons=[
             DeclineDto(reason="Не подходит", count=0, percentage=0),
             DeclineDto(reason="Не отвечает", count=0, percentage=0),
+        ],
+    ),
+]
+
+EXAMPLE_STAGES_2 = [
+    StageDto(
+        id=1,
+        name="Предварительный отбор",
+        order=1,
+        success_rate=0.8,
+        avg_duration=4,
+        max_duration=12,
+        number_of_candidates=120,
+        sources=[
+            SourceDto(name="job.ru", count=60, percentage=50),
+            SourceDto(name="linkedin", count=60, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не соответствует требованиям", count=60, percentage=50),
+            DeclineDto(reason="Отказался от предложения", count=60, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=2,
+        name="Техническое интервью",
+        order=2,
+        success_rate=0.6,
+        avg_duration=6,
+        max_duration=20,
+        number_of_candidates=72,
+        sources=[
+            SourceDto(name="job.ru", count=36, percentage=50),
+            SourceDto(name="linkedin", count=36, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=36, percentage=50),
+            DeclineDto(reason="Не отвечает", count=36, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=3,
+        name="Культурное соответствие",
+        order=3,
+        success_rate=0.4,
+        avg_duration=3,
+        max_duration=8,
+        number_of_candidates=30,
+        sources=[
+            SourceDto(name="job.ru", count=15, percentage=50),
+            SourceDto(name="linkedin", count=15, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=15, percentage=50),
+            DeclineDto(reason="Не отвечает", count=15, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=4,
+        name="Финальное собеседование",
+        order=4,
+        success_rate=0.5,
+        avg_duration=2,
+        max_duration=6,
+        number_of_candidates=15,
+        sources=[
+            SourceDto(name="job.ru", count=8, percentage=53),
+            SourceDto(name="linkedin", count=7, percentage=47),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=8, percentage=53),
+            DeclineDto(reason="Не отвечает", count=7, percentage=47),
+        ],
+    ),
+    StageDto(
+        id=5,
+        name="Офер",
+        order=5,
+        success_rate=0.95,
+        avg_duration=1,
+        max_duration=3,
+        number_of_candidates=7,
+        sources=[
+            SourceDto(name="job.ru", count=4, percentage=57),
+            SourceDto(name="linkedin", count=3, percentage=43),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=4, percentage=57),
+            DeclineDto(reason="Не отвечает", count=3, percentage=43),
+        ],
+    ),
+    StageDto(
+        id=6,
+        name="Ввод в должность",
+        order=6,
+        success_rate=1.0,
+        avg_duration=0,
+        max_duration=0,
+        number_of_candidates=7,
+        sources=[
+            SourceDto(name="job.ru", count=4, percentage=57),
+            SourceDto(name="linkedin", count=3, percentage=43),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=0, percentage=0),
+            DeclineDto(reason="Не отвечает", count=0, percentage=0),
+        ],
+    ),
+]
+
+EXAMPLE_STAGES_3 = [
+    StageDto(
+        id=1,
+        name="Первичный отбор резюме",
+        order=1,
+        success_rate=0.75,
+        avg_duration=3,
+        max_duration=10,
+        number_of_candidates=150,
+        sources=[
+            SourceDto(name="superjob.ru", count=75, percentage=50),
+            SourceDto(name="linkedin", count=75, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не соответствует опыту", count=75, percentage=50),
+            DeclineDto(reason="Слишком высокая зарплата", count=75, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=2,
+        name="Собеседование с HR",
+        order=2,
+        success_rate=0.65,
+        avg_duration=4,
+        max_duration=15,
+        number_of_candidates=100,
+        sources=[
+            SourceDto(name="superjob.ru", count=50, percentage=50),
+            SourceDto(name="linkedin", count=50, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит по культуре", count=50, percentage=50),
+            DeclineDto(reason="Не отвечает", count=50, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=3,
+        name="Техническое собеседование",
+        order=3,
+        success_rate=0.55,
+        avg_duration=5,
+        max_duration=12,
+        number_of_candidates=65,
+        sources=[
+            SourceDto(name="superjob.ru", count=32, percentage=50),
+            SourceDto(name="linkedin", count=33, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не хватает навыков", count=32, percentage=50),
+            DeclineDto(reason="Не отвечает", count=33, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=4,
+        name="Финальное собеседование с руководителем",
+        order=4,
+        success_rate=0.45,
+        avg_duration=4,
+        max_duration=8,
+        number_of_candidates=30,
+        sources=[
+            SourceDto(name="superjob.ru", count=15, percentage=50),
+            SourceDto(name="linkedin", count=15, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит по опыту", count=15, percentage=50),
+            DeclineDto(reason="Не отвечает", count=15, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=5,
+        name="Предложение о работе",
+        order=5,
+        success_rate=0.85,
+        avg_duration=2,
+        max_duration=5,
+        number_of_candidates=10,
+        sources=[
+            SourceDto(name="superjob.ru", count=6, percentage=60),
+            SourceDto(name="linkedin", count=4, percentage=40),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит по условиям", count=6, percentage=60),
+            DeclineDto(reason="Не отвечает", count=4, percentage=40),
+        ],
+    ),
+    StageDto(
+        id=6,
+        name="Адаптация нового сотрудника",
+        order=6,
+        success_rate=1.0,
+        avg_duration=0,
+        max_duration=0,
+        number_of_candidates=10,
+        sources=[
+            SourceDto(name="superjob.ru", count=6, percentage=60),
+            SourceDto(name="linkedin", count=4, percentage=40),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=0, percentage=0),
+            DeclineDto(reason="Не отвечает", count=0, percentage=0),
+        ],
+    ),
+    StageDto(
+        id=7,
+        name="Оценка эффективности",
+        order=7,
+        success_rate=0.9,
+        avg_duration=1,
+        max_duration=3,
+        number_of_candidates=10,
+        sources=[
+            SourceDto(name="superjob.ru", count=5, percentage=50),
+            SourceDto(name="linkedin", count=5, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит", count=5, percentage=50),
+            DeclineDto(reason="Не отвечает", count=5, percentage=50),
+        ],
+    ),
+]
+
+EXAMPLE_STAGES_4 = [
+    StageDto(
+        id=1,
+        name="Отбор резюме",
+        order=1,
+        success_rate=0.78,
+        avg_duration=3,
+        max_duration=8,
+        number_of_candidates=120,
+        sources=[
+            SourceDto(name="job.ru", count=60, percentage=50),
+            SourceDto(name="linkedin", count=60, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не соответствует требованиям", count=60, percentage=50),
+            DeclineDto(reason="Слишком высокая зарплата", count=60, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=2,
+        name="Собеседование с HR",
+        order=2,
+        success_rate=0.65,
+        avg_duration=4,
+        max_duration=10,
+        number_of_candidates=80,
+        sources=[
+            SourceDto(name="job.ru", count=40, percentage=50),
+            SourceDto(name="linkedin", count=40, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит по культуре", count=40, percentage=50),
+            DeclineDto(reason="Не отвечает", count=40, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=3,
+        name="Техническое собеседование",
+        order=3,
+        success_rate=0.50,
+        avg_duration=5,
+        max_duration=12,
+        number_of_candidates=40,
+        sources=[
+            SourceDto(name="job.ru", count=20, percentage=50),
+            SourceDto(name="linkedin", count=20, percentage=50),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не хватает навыков", count=20, percentage=50),
+            DeclineDto(reason="Не отвечает", count=20, percentage=50),
+        ],
+    ),
+    StageDto(
+        id=4,
+        name="Предложение о работе",
+        order=4,
+        success_rate=0.90,
+        avg_duration=2,
+        max_duration=4,
+        number_of_candidates=10,
+        sources=[
+            SourceDto(name="job.ru", count=6, percentage=60),
+            SourceDto(name="linkedin", count=4, percentage=40),
+        ],
+        decline_reasons=[
+            DeclineDto(reason="Не подходит по условиям", count=6, percentage=60),
+            DeclineDto(reason="Не отвечает", count=4, percentage=40),
         ],
     ),
 ]

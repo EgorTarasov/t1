@@ -1,6 +1,6 @@
 from typing import List, Union
 import datetime as dt
-
+import logging
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
@@ -8,15 +8,14 @@ from fastapi_pagination import Page
 from fastapi_pagination.ext.sqlalchemy import paginate
 from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from src.hr.schemas import SalaryExpectationDto
 from src.dependencies import get_db
-
+import random
 
 from .models import Skill, Vacancy, Roadmap, RoadmapStage
 
 from .schemas import (
     EXAMPLE_ALL_ACTIVE,
-    EXAMPLE_STAGES,
     EXAMPLES_ALL_DECLINED,
     EXAMPLES_ALL_POTENTIAL,
     AllCandidatesDeclinedDto,
@@ -30,7 +29,10 @@ from .schemas import (
     VacancyDTO,
     VacancyStats,
     RecrutierStage,
-    EXAMPLE_STAGES,
+    EXAMPLE_STAGES_1,
+    EXAMPLE_STAGES_2,
+    EXAMPLE_STAGES_3,
+    EXAMPLE_STAGES_4,
 )
 
 router = APIRouter(
@@ -191,10 +193,14 @@ async def get_vacancy_roadmap(
     )
     db_vacancy = await db.execute(stmt)
     result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
-
+    random.seed(vacancy_id)
+    stages = [EXAMPLE_STAGES_1, EXAMPLE_STAGES_2, EXAMPLE_STAGES_3, EXAMPLE_STAGES_4]
     if not result:
         raise HTTPException(status_code=404, detail="Vacancy not found")
-    return RoadmapDto(vacancy=VacancyDTO.model_validate(result), stages=EXAMPLE_STAGES)
+    return RoadmapDto(
+        vacancy=VacancyDTO.model_validate(result),
+        stages=random.choice(stages),
+    )
 
 
 @router.get("/stats/{vacancy_id}")
@@ -203,7 +209,45 @@ async def get_vacancy_stats(
     db: AsyncSession = Depends(get_db),
 ) -> VacancyStats:
     """Get vacancy stats by ID"""
-    return VacancyStats()  # type: ignore
+    limit = 5
+    response = await db.execute(
+        sa.sql.text("select setseed(:seed);"), {"seed": vacancy_id / 10000}
+    )
+    response = await db.execute(
+        sa.sql.text("select * from vacancies ORDER BY random() limit (:limit);"),
+        {"limit": limit},
+    )
+
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(
+                Vacancy.vacancy_skills,
+            ),
+            orm.joinedload(Vacancy.vacancy_candidates),
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+    median = 0
+    for row in response:
+        median += (row[-1] + row[-2]) / 2
+    return VacancyStats(
+        people_per_vacancy=median / 100000,
+        candidates_salary=SalaryExpectationDto(
+            start=result.salary_high, end=result.salary_low
+        ),
+        market_salary=SalaryExpectationDto(
+            start=result.salary_high - median / limit / 5,
+            end=result.salary_low + median / limit / 5,
+        ),
+        candidate_median_salary=float(median / limit),
+        median_salary=SalaryExpectationDto(
+            start=result.salary_high - median / limit / 5,
+            end=result.salary_low + median / limit / 5,
+        ),
+    )
 
 
 @router.get("/recruiter/stages")
