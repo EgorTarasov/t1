@@ -1,10 +1,11 @@
 import datetime as dt
+from enum import unique
 import typing as tp
-
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.database import Base
 from src.database import Base
 from src.models import TimestampMixin
 
@@ -32,6 +33,8 @@ class Vacancy(Base, TimestampMixin):
     recruiter_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
+    salary_high: Mapped[int] = mapped_column(sa.Integer, nullable=False)
+    salary_low: Mapped[int] = mapped_column(sa.Integer, nullable=False)
     hr_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
@@ -162,6 +165,8 @@ class Candidate(Base):
     cv_url: Mapped[str] = mapped_column(sa.Text, nullable=False)
     raw_json: Mapped[dict[str, tp.Any]] = mapped_column(JSON, nullable=False)
     src: Mapped[str] = mapped_column(sa.Text, default="hh", nullable=False)
+
+    vacancies = relationship(
 
     vacancies = relationship(
         "Vacancy",

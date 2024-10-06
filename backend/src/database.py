@@ -2,13 +2,9 @@ import typing as tp
 from asyncio import current_task
 
 import sqlalchemy as sa
-from sqlalchemy.ext.asyncio import (
-    AsyncEngine,
-    AsyncSession,
-    async_scoped_session,
-    async_sessionmaker,
-    create_async_engine,
-)
+from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
+                                    async_scoped_session, async_sessionmaker,
+                                    create_async_engine)
 from sqlalchemy.orm import DeclarativeBase, declared_attr
 
 from src.config import app_config
