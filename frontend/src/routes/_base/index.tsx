@@ -52,7 +52,7 @@ const Page = observer(() => {
             leftIcon={<SearchIcon />}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <div className="flex flex-wrap gap-y-3 gap-x-2">
+          <div className="flex flex-wrap gap-y-3 gap-x-2 capitalize">
             {vm.filters.map((f, i) => (
               <DropdownMultiple {...f.attributes} key={i} />
             ))}

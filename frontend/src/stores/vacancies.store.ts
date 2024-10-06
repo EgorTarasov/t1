@@ -14,11 +14,11 @@ const filterKeys: {
     name: "Приоритет",
   },
   {
-    getValue: (v) => v.city,
+    getValue: (v) => v.city.toLowerCase(),
     name: "Локация",
   },
   {
-    getValue: (v) => v.profession,
+    getValue: (v) => v.profession.toLowerCase(),
     name: "Профессия",
   },
 ];
