@@ -27,5 +27,7 @@ export class VacancyStore implements DisposableVm {
     this.declinedCandidates = declined.candidates;
   }
 
-  dispose(): void {}
+  dispose(): void {
+    return;
+  }
 }

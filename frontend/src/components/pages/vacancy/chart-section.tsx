@@ -50,7 +50,7 @@ export const ChartSection: FC<Props> = observer(
         )}
         <div
           className={cn(
-            "flex gap-8 xl:gap-32 mt-3 overflow-auto px-5",
+            "flex flex-col md:flex-row gap-8 xl:gap-32 mt-3 overflow-auto px-5",
             collapsed && "hidden",
             x.allowOverflow && "overflow-visible",
           )}

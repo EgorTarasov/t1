@@ -1,7 +1,9 @@
+import { VacancyEndpoint } from "@/api/endpoints/vacanvy.endpoint";
 import { mockVacancy } from "@/api/models/vacancy.model";
 import { MainLayout } from "@/components/hoc/layouts/main.layout";
 import { AnalyticsView } from "@/components/pages/vacancy/analytics.view";
 import { CandidatesView } from "@/components/pages/vacancy/candidates.view";
+import { OverviewView } from "@/components/pages/vacancy/overview.view";
 import { Stats } from "@/components/pages/vacancy/stats.view";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
@@ -96,7 +98,9 @@ const Page = observer(() => {
           <TabsTrigger value="candidates">Кандидаты</TabsTrigger>
           <TabsTrigger value="analytics">Анализ рынка по вакансии</TabsTrigger>
         </TabsList>
-        <TabsContent value="overview">overview</TabsContent>
+        <TabsContent value="overview">
+          <OverviewView vm={vm} />
+        </TabsContent>
         <TabsContent value="stats">
           <Stats vacancy={vm.vacancy} />
         </TabsContent>
@@ -115,8 +119,7 @@ export const Route = createFileRoute("/_base/vacancy/$id")({
   component: Page,
   beforeLoad: checkAuth,
   loader: async (x) => {
-    // const vacancy = await VacancyEndpoint.getById(x.params.id);
-    const vacancy = mockVacancy;
+    const vacancy = await VacancyEndpoint.getById(x.params.id);
     return { vacancy };
   },
 });

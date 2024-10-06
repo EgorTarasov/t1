@@ -2,7 +2,9 @@ import { VacancyEndpoint } from "@/api/endpoints/vacanvy.endpoint";
 import { SkillDto } from "@/api/models/skill.model";
 import { Priority } from "@/types/priority.type";
 import { DisposableVm } from "@/utils/vm";
+import { NavigateFn } from "@tanstack/react-router";
 import { makeAutoObservable } from "mobx";
+import { toast } from "sonner";
 
 export class StageStore {
   name = "";
@@ -31,6 +33,8 @@ export class NewVacancyStore implements DisposableVm {
   typeOfEmployment = "";
   quantity = 1;
   direction = "";
+  salaryLow = "";
+  salaryHigh = "";
 
   loading = false;
 
@@ -48,11 +52,40 @@ export class NewVacancyStore implements DisposableVm {
     makeAutoObservable(this);
   }
 
-  async create() {
-    const vacancy = await VacancyEndpoint.create({
+  validate(): boolean {
+    if (this.name.length < 3) {
+      toast.error("Название вакансии должно быть не менее 3 символов");
+      return false;
+    }
+
+    if (Number(this.salaryLow) > Number(this.salaryHigh)) {
+      toast.error("Минимальная зарплата не может быть больше максимальной");
+      return false;
+    }
+
+    if (this.stages.length < 1) {
+      toast.error("Необходимо добавить хотя бы один этап");
+      return false;
+    }
+
+    if (this.keySkills.length < 1) {
+      toast.error("Необходимо добавить хотя бы один ключевой навык");
+      return false;
+    }
+
+    if (Number(this.experienceFrom) > Number(this.experienceTo)) {
+      toast.error("Неверно указаны годы опыта");
+      return false;
+    }
+
+    return true;
+  }
+
+  async create(navigate: NavigateFn) {
+    const id = await VacancyEndpoint.create({
       name: this.name,
       priority: this.priority,
-      deadline: this.deadline,
+      deadline: this.deadline.toISOString().split("T")[0] + "T00:00:00",
       profession: this.profession,
       area: this.area,
       supervisor: this.supervisor,
@@ -66,13 +99,21 @@ export class NewVacancyStore implements DisposableVm {
       typeOfEmployment: this.typeOfEmployment,
       quantity: this.quantity,
       direction: this.direction,
-      // stages: this.stages.map((x) => ({
-      //   name: x.name,
-      //   sla: x.sla,
-      // })),
+      salary_low: Number(this.salaryLow),
+      salary_high: Number(this.salaryHigh),
+      stages: this.stages.map((x, i) => ({
+        order: i + 1,
+        name: x.name,
+        duration: x.sla,
+      })),
     });
-    return vacancy;
+
+    navigate({ to: "/vacancy/$id", params: { id: id.toString() } });
+
+    return id;
   }
 
-  dispose(): void {}
+  dispose(): void {
+    return;
+  }
 }

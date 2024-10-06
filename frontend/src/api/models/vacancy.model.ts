@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Priority } from "@/types/priority.type";
+import { SkillDto } from "./skill.model";
 
 export namespace VacancyDto {
   const SourceSchema = z.object({
@@ -39,7 +40,8 @@ export namespace VacancyDto {
     quantity: z.number(),
     description: z.string(),
     type_of_employment: z.string(),
-    vacancy_skills: z.array(z.any()),
+    vacancy_skills: z.array(SkillDto.Item),
+    // additional_skills: z.array(z.any()),
     recruiter: z.null(),
     hr: z.null(),
     created_at: z.string(),
@@ -69,7 +71,16 @@ export const mockVacancy: VacancyDto.DetailedItem = {
     quantity: 1,
     description: "Разработчик",
     type_of_employment: "Полная занятость",
-    vacancy_skills: [],
+    vacancy_skills: [
+      {
+        id: 1,
+        name: "JavaScript",
+      },
+      {
+        id: 2,
+        name: "TypeScript",
+      },
+    ],
     recruiter: null,
     hr: null,
     created_at: "2021-01-01T00:00:00",

@@ -21,14 +21,14 @@ export namespace VacancyEndpoint {
     });
 
   export const getById = (id: string) =>
-    api.get(`/vacancies/${id}`, {
+    api.get(`/vacancies/roadmap/${id}`, {
       schema: VacancyDto.DetailedItem,
     });
 
   interface VacancyTemplate {
     name: string;
     priority: Priority.Priority;
-    deadline: Date;
+    deadline: string;
     profession: string;
     area: string;
     supervisor: string;
@@ -42,6 +42,13 @@ export namespace VacancyEndpoint {
     typeOfEmployment: string;
     quantity: number;
     direction: string;
+    salary_low: number;
+    salary_high: number;
+    stages: {
+      order: number;
+      name: string;
+      duration: number;
+    }[];
   }
   export const create = (vacancy: VacancyTemplate) =>
     api.post("/vacancies/new", vacancy, {

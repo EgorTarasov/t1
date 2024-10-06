@@ -4,7 +4,7 @@ import { IconInput, Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Priority } from "@/types/priority.type";
 import { checkAuth } from "@/utils/check-grant";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { observer } from "mobx-react-lite";
 import {
   Select,
@@ -20,9 +20,14 @@ import { Textarea } from "@/components/ui/textarea";
 import DropdownMultiple from "@/components/DropdownMultiple";
 import { StagesForm } from "@/components/pages/vacancy/StagesForm";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import AutoFormInput from "@/components/ui/auto-form/fields/input";
+import AutoForm from "@/components/ui/auto-form";
+import { z } from "zod";
 
 const Page = observer(() => {
   const vm = useViewModel(NewVacancyStore);
+  const navigate = useNavigate();
 
   return (
     <MainLayout title="Новая вакансия">
@@ -70,7 +75,7 @@ const Page = observer(() => {
           allowOverflow
         >
           <div className="flex flex-wrap gap-4">
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-1 h-fit">
+            <div className="grid grid-cols-[1fr_auto_1fr] w-fit items-center gap-x-1 h-fit">
               <Label
                 htmlFor="experience_from"
                 className="col-span-3 mt-1.5 mb-1"
@@ -172,62 +177,52 @@ const Page = observer(() => {
               />
             </div>
             <div className="grid grid-cols-2">
-              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-x-1 h-fit">
+              <div className="grid grid-cols-[1fr_auto_1fr] w-fit items-center gap-x-1 h-fit">
                 <Label
                   htmlFor="experience_from"
                   className="col-span-3 mt-1.5 mb-1"
                 >
-                  Опыт работы, лет
+                  Вилка зарплаты, руб
                 </Label>
                 <IconInput
-                  id="experience_from"
+                  id="salary_low"
                   type="number"
                   placeholder="от"
                   onChange={(e) => {
-                    const value = Number(e.target.value);
-                    if (
-                      value > Number(vm.experienceTo || 99) ||
-                      value < 0 ||
-                      value > 99
-                    ) {
-                      return;
-                    }
-                    vm.experienceFrom = e.target.value;
+                    vm.salaryLow = e.target.value;
                   }}
                   className="w-24"
                 />
                 <span>–</span>
                 <IconInput
-                  id="experience_to"
+                  id="salary_high"
                   type="number"
                   placeholder="до"
-                  value={vm.experienceTo}
+                  value={vm.salaryHigh}
                   onChange={(e) => {
-                    const value = Number(e.target.value);
-                    if (value > 99 || value < 0) {
-                      return;
-                    }
-                    vm.experienceTo = e.target.value;
+                    vm.salaryHigh = e.target.value;
                   }}
                   className="w-24"
                 />
               </div>
             </div>
-            {/* <DropdownMultiple
-              label="График работы"
-              value={vm.typeOfEmployment}
-              onChange={(value) => {
-                vm.typeOfEmployment = value;
-              }}
-              options={vm.typeOfEmployments}
-              compare={(a) => a.name}
-              render={(a) => a.name}
-            /> */}
             <StagesForm vm={vm} />
           </div>
         </ChartSection>
         <div className="w-full flex justify-end">
-          <Button onClick={() => vm.create()}>Создать вакансию</Button>
+          <Button
+            onClick={() => {
+              if (vm.validate()) {
+                toast.promise(vm.create(navigate), {
+                  loading: "Создание вакансии...",
+                  success: "Вакансия создана",
+                  error: "Ошибка создания вакансии",
+                });
+              }
+            }}
+          >
+            Создать вакансию
+          </Button>
         </div>
       </div>
     </MainLayout>

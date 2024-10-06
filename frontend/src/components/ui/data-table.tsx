@@ -9,10 +9,11 @@ import {
   TableCell,
   TableFooter,
 } from "./table";
+import { ReactNode } from "@tanstack/react-router";
 
 export interface Column<T> {
-  header: string;
-  accessor?: (item: T) => React.ReactNode;
+  header: ReactNode;
+  accessor?: (item: T) => ReactNode;
   className?: string;
 }
 
@@ -62,7 +63,7 @@ export const DataTable = <T,>({
             className={
               onRowClick
                 ? "cursor-pointer hover:bg-slate-100 transition-colors"
-                : undefined
+                : "hover:bg-transparent"
             }
           >
             {columns.map((column, colIndex) => (
