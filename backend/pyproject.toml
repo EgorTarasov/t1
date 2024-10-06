@@ -17,6 +17,7 @@ passlib = "^1.7.4"
 pyotp = "^2.9.0"
 celery = {extras = ["redis"], version = "^5.4.0"}
 loguru = "^0.7.2"
+fastapi-pagination = "^0.12.29"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.11.2"
@@ -30,7 +31,6 @@ httpx-ws = "^0.6.0"
 httpx-sse = "^0.4.0"
 isort = "^5.13.2"
 pylint = "^3.3.1"
-sqlalchemy2-stubs = "^0.0.2a38"
 
 [build-system]
 requires = ["poetry-core"]

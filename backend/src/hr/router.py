@@ -1,13 +1,37 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List, Union
+import datetime as dt
 
-from loguru import logger
-from src.dependencies import get_db
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
-from .models import Vacancy, Skill, VacancySkill
-from .schemas import VacancyCreate, SkillSearchResult, SkillCreate, VacancyDTO
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query
+from fastapi_pagination import Page
+from fastapi_pagination.ext.sqlalchemy import paginate
+from loguru import logger
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.dependencies import get_db
+
+
+from .models import Skill, Vacancy, Roadmap, RoadmapStage
+
+from .schemas import (
+    EXAMPLE_ALL_ACTIVE,
+    EXAMPLE_STAGES,
+    EXAMPLES_ALL_DECLINED,
+    EXAMPLES_ALL_POTENTIAL,
+    AllCandidatesDeclinedDto,
+    AllCandidatesPotentialDto,
+    AllCandidatesVacancyDto,
+    CandidateDto,
+    RoadmapDto,
+    SkillCreate,
+    SkillSearchResult,
+    VacancyCreate,
+    VacancyDTO,
+    VacancyStats,
+    RecrutierStage,
+    EXAMPLE_STAGES,
+)
 
 router = APIRouter(
     prefix="/vacancies",
@@ -15,22 +39,52 @@ router = APIRouter(
 )
 
 
-@router.get("/all/active")
+@router.get("/all/active", response_model=Page[VacancyDTO])
 async def return_active(
-    background_tasks: BackgroundTasks,
+    isAppointed: Union[bool, None] = None,
+    byDateDeadline: Union[bool, None] = None,
+    byDateCreation: Union[bool, None] = None,
+    byPriority: Union[bool, None] = None,
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Returns all active vacancies in the database.
-
     Args:
         db (Session): The database session dependency.
-
+        isAppointed(bool): Is the vacancy appointed to recruiter/hr
+        byDateDeadline(bool):
+        byDateCreation(bool):
+        byPriority(bool):
     Returns:
         JSON: json containing all vacancies
     """
 
-    return {"message": "Vacancies"}
+    # TODO: check join statement
+    stmt = sa.select(Vacancy).options(
+        orm.joinedload(Vacancy.vacancy_skills),
+        orm.joinedload(Vacancy.recruiter),
+        orm.joinedload(Vacancy.hr),
+        orm.joinedload(Vacancy.vacancy_candidates),
+    )
+    if isAppointed is not None:
+        stmt = stmt.filter(
+            Vacancy.recruiter_id != None
+            if isAppointed
+            else Vacancy.recruiter_id == None
+        )
+    if byPriority is not None:
+        stmt = stmt.order_by(
+            Vacancy.priority if byPriority else Vacancy.priority.desc()
+        )
+    if byDateCreation is not None:
+        stmt = stmt.order_by(
+            Vacancy.created_at if byDateCreation else Vacancy.created_at.desc()
+        )
+    if byDateDeadline is not None:
+        stmt = stmt.order_by(
+            Vacancy.deadline if byDateDeadline else Vacancy.deadline.desc()
+        )
+
+    return await paginate(db, stmt)
 
 
 @router.post("/new")
@@ -52,24 +106,41 @@ async def create_vacancy(
         experience_to=vacancy.experience_to,
         education=vacancy.education,
         quantity=vacancy.quantity,
+        salary_high=vacancy.salary_high,
+        salary_low=vacancy.salary_low,
+        direction=vacancy.direction,
         description=vacancy.description,
         type_of_employment=vacancy.type_of_employment,
     )
+    db.add(db_vacancy)
+    stmt = sa.select(Skill).where(Skill.id.in_(vacancy.key_skills))
 
-    for skill_id in vacancy.key_skills:
-        db_vacancy.vacancy_skills.append(
-            VacancySkill(vacancy=db_vacancy, skill_id=skill_id, is_key_skill=True)
-        )
+    required_skills = (await db.execute(stmt)).scalars()
 
-    for skill_id in vacancy.additional_skills:
-        db_vacancy.vacancy_skills.append(
-            VacancySkill(vacancy=db_vacancy, skill_id=skill_id, is_key_skill=False)
+    stmt = sa.select(Skill).where(Skill.id.in_(vacancy.additional_skills))
+
+    additional_skills = (await db.execute(stmt)).scalars()
+
+    db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)  # type: ignore
+    db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)  # type: ignore
+    await db.flush()
+    await db.refresh(db_vacancy, attribute_names=["id"])
+
+    db_roadmap = Roadmap(vacancy_id=db_vacancy.id)
+    db.add(db_roadmap)
+    await db.flush()
+    await db.refresh(db_roadmap, ["id"])
+    for stage in vacancy.stages:
+        db_stage = RoadmapStage(
+            name=stage.name,
+            order=stage.order,
+            roadmap_id=db_roadmap.id,
+            duration=stage.duration,
         )
+        db.add(db_stage)
 
     try:
-        db.add(db_vacancy)
         await db.commit()
-        await db.refresh(db_vacancy)
     except Exception as e:
         logger.error(f"Error: {e}")
         await db.rollback()
@@ -89,7 +160,8 @@ async def get_vacancy(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            ).joinedload(VacancySkill.skill)
+            ),
+            orm.joinedload(Vacancy.vacancy_candidates),
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -98,9 +170,159 @@ async def get_vacancy(
 
     if not result:
         raise HTTPException(status_code=404, detail="Vacancy not found")
-    skills = [vacancy_skill.skill for vacancy_skill in result.vacancy_skills]
-    print(skills)
     return VacancyDTO.model_validate(result)
+
+
+@router.get("/roadmap/{vacancy_id}")
+async def get_vacancy_roadmap(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> RoadmapDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(
+                Vacancy.vacancy_skills,
+            ),
+            orm.joinedload(Vacancy.vacancy_candidates),
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return RoadmapDto(vacancy=VacancyDTO.model_validate(result), stages=EXAMPLE_STAGES)
+
+
+@router.get("/stats/{vacancy_id}")
+async def get_vacancy_stats(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> VacancyStats:
+    """Get vacancy stats by ID"""
+    return VacancyStats()  # type: ignore
+
+
+@router.get("/recruiter/stages")
+async def get_vacancies_by_recruiter() -> list[RecrutierStage]:
+    return [
+        RecrutierStage(
+            stage_name="HR скриннинг",
+            candidate_id=5,
+            vacancy_name="Менеджер по успешному успеху",
+            stage_url="https://hh.ru",
+            deadline=dt.datetime.now() + dt.timedelta(days=5),
+        ),
+        RecrutierStage(
+            stage_name="Финальное интервью",
+            candidate_id=22,
+            vacancy_name="Менеджер по успешному успеху",
+            stage_url="https://hh.ru",
+            deadline=dt.datetime.now() + dt.timedelta(days=5),
+        ),
+        RecrutierStage(
+            stage_name="Финальное интервью",
+            candidate_id=33,
+            vacancy_name="Менеджер по успешному успеху",
+            stage_url="https://hh.ru",
+            deadline=dt.datetime.now() + dt.timedelta(days=5),
+        ),
+    ]
+
+
+@router.get("/candidates/active/{vacancy_id}")
+async def get_active_vacancies(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> AllCandidatesVacancyDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(Vacancy.vacancy_skills),
+            orm.joinedload(Vacancy.vacancy_candidates),
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    try:
+        db_vacancy = await db.execute(stmt)
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=400, detail="User not found")
+
+    vacancy: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+    candidates = []
+    # for candidate in vacancy.vacancy_candidates:
+    # candidates.append(
+    # CandidateVacancyDto(
+    #     source=candidate.src,
+    #     candidate_id=candidate.id,
+    # date_of_accept: dt.datetime = Field(..., description="The education level required")
+    # stage_name: str = Field(..., description="")
+    # similarity: int = Field(..., description="")
+    # )
+    # )
+    logger.error(candidates)
+    # if not result:
+    #     raise HTTPException(status_code=404, detail="Vacancy not found")
+    return AllCandidatesVacancyDto(
+        vacancy=VacancyDTO.model_validate(vacancy), candidates=EXAMPLE_ALL_ACTIVE
+    )
+
+
+@router.get("/candidates/declined/{vacancy_id}")
+async def get_declined_vacancies(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> AllCandidatesDeclinedDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(Vacancy.vacancy_skills),
+            orm.joinedload(Vacancy.vacancy_candidates),
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return AllCandidatesDeclinedDto(
+        vacancy=VacancyDTO.model_validate(result), candidates=EXAMPLES_ALL_DECLINED
+    )
+
+
+@router.get("/candidates/potential/{vacancy_id}")
+async def get_potential_vacancies(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> AllCandidatesPotentialDto:
+    """Get vacancy roadmap by ID"""
+    stmt = (
+        sa.select(Vacancy)
+        .options(
+            orm.joinedload(
+                Vacancy.vacancy_skills,
+            ),
+            orm.joinedload(
+                Vacancy.vacancy_candidates,
+            ),
+        )
+        .filter(Vacancy.id == vacancy_id)
+    )
+    db_vacancy = await db.execute(stmt)
+    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Vacancy not found")
+    return AllCandidatesPotentialDto(
+        vacancy=VacancyDTO.model_validate(result), candidates=EXAMPLES_ALL_POTENTIAL
+    )
 
 
 skills = APIRouter(
@@ -111,15 +333,19 @@ skills = APIRouter(
 
 @skills.post("/new")
 async def add_skill(
-    skill: SkillCreate,
+    skills: List[SkillCreate],
     db: AsyncSession = Depends(get_db),
-) -> SkillSearchResult:
+) -> list[SkillSearchResult]:
     """Добавление нового навыка"""
-    db_skill = Skill(name=skill.name)
-    db.add(db_skill)
+    db_skills = []
+    for skill in skills:
+        db_skill = Skill(name=skill.name)
+        db.add(db_skill)
+        await db.flush()
+        await db.refresh(db_skill, ["id"])
+        db_skills.append(db_skill)
     await db.commit()
-
-    return SkillSearchResult(id=db_skill.id, name=db_skill.name)
+    return [SkillSearchResult.model_validate(obj) for obj in db_skills]
 
 
 @skills.get("/all")

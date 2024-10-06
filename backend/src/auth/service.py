@@ -101,7 +101,7 @@ def send_verification_code(
     template = "email/verification.jinja2"
     data: dict[str, tp.Any] = {
         "user_name": user_name,
-        "verification_url": f"{app_config.get().domain}/auth/email/verify",
+        "verification_url": f"{app_config.domain}/auth/email/verify",
         "verification_code": verification_code,
     }
 
@@ -116,7 +116,7 @@ def send_recovery_code(
     template = "email/recovery.jinja2"
     data: dict[str, tp.Any] = {
         "user_name": user_name,
-        "recovery_url": f"{app_config.get().domain}/auth/email/recovery",
+        "recovery_url": f"{app_config.domain}/auth/email/recovery",
         "recovery_code": recovery_code,
     }
 

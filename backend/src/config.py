@@ -1,6 +1,3 @@
-import logging
-from contextvars import ContextVar
-
 from pydantic import Field, PostgresDsn, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
