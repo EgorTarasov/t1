@@ -40,7 +40,7 @@ services:
       - TZ=Europe/Moscow
       - DOCKER_MODE=True
   ui:
-    image: ghcr.io/egortarasov/t1/ui:dev
+    image: ghcr.io/egortarasov/t1/ui@sha256:693b17b86a530a82c6a18a022cc3d68b0e8c8c091194f86c665d2896ca883ba2
     build:
       context: frontend/.
       dockerfile: Dockerfile
