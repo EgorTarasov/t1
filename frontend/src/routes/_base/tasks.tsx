@@ -8,24 +8,18 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CheckIcon, UserXIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useCallback, useMemo } from "react";
-
-interface Task {
-  id: number;
-  stage: string;
-  candidate_number: number;
-  vacancy_name: string;
-  deadline: string;
-  resume_link: string;
-}
+import { TaskDto } from "@/api/models/task.model";
+import { toast } from "sonner";
 
 const Page = observer(() => {
   const { tasks } = Route.useLoaderData();
 
-  const onReject = useCallback((task: Task) => {
+  const onReject = useCallback((task: TaskDto.Item) => {
     console.log(task);
+    toast.info("Задача отклонена");
   }, []);
 
-  const columns = useMemo<Column<Task>[]>(
+  const columns = useMemo<Column<TaskDto.Item>[]>(
     () => [
       {
         header: "Этап",
@@ -34,13 +28,13 @@ const Page = observer(() => {
             <button className="border rounded-md size-6 flex items-center justify-center group">
               <CheckIcon className="size-4 group-hover:opacity-100 opacity-0" />
             </button>
-            {v.stage}
+            {v.stage_name}
           </div>
         ),
       },
       {
         header: "№",
-        accessor: (v) => v.candidate_number,
+        accessor: (v) => v.candidate_id,
       },
       {
         header: "Вакансия",
@@ -60,7 +54,7 @@ const Page = observer(() => {
         header: "Резюме",
         accessor: (v) => (
           <a
-            href={v.resume_link}
+            href={v.stage_url}
             target="_blank"
             rel="noreferrer"
             className="text-blue-500 underline hover:no-underline"
@@ -94,17 +88,8 @@ export const Route = createFileRoute("/_base/tasks")({
   component: Page,
   beforeLoad: checkAuth,
   loader: async () => {
-    // const tasks = await TasksEndpoint.list();
-    const tasks: Task[] = [
-      {
-        id: 1,
-        stage: "HR Скрининг",
-        candidate_number: 1,
-        vacancy_name: "vacancy",
-        deadline: "2024-10-06T11:27:41.106023",
-        resume_link: "https://google.com",
-      },
-    ];
+    const tasks = await TasksEndpoint.list();
+
     return { tasks };
   },
 });
