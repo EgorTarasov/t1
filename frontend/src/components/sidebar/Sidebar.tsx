@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { Logo } from "../ui/logo";
-import { Link, useMatches } from "@tanstack/react-router";
+import { Link, useLocation, useMatches } from "@tanstack/react-router";
 import { RouteType } from "@/types/router.type";
 import {
   BriefcaseIcon,
@@ -26,11 +26,13 @@ const items: {
   to: RouteType;
   label: string;
   icon: React.ElementType;
+  active?: (v: string) => boolean;
 }[] = [
   {
     to: "/",
     label: "Вакансии",
     icon: BriefcaseIcon,
+    active: (pathname) => pathname.includes("/vacancy"),
   },
   {
     to: "/login",
@@ -51,6 +53,7 @@ const items: {
 
 export const Sidebar: FC<{ hideSidebar?: boolean }> = observer(
   ({ hideSidebar }) => {
+    const { pathname } = useLocation();
     return (
       <AnimatePresence mode="popLayout" initial={false}>
         {!hideSidebar && (
@@ -69,6 +72,7 @@ export const Sidebar: FC<{ hideSidebar?: boolean }> = observer(
                     <Link
                       to={item.to}
                       className={cn(
+                        item.active?.(pathname) && "active",
                         "font-medium flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-100 rounded-md",
                         "[&.active]:text-primary",
                       )}

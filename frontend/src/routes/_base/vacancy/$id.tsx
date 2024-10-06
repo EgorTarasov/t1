@@ -1,5 +1,6 @@
 import { mockVacancy } from "@/api/models/vacancy.model";
 import { MainLayout } from "@/components/hoc/layouts/main.layout";
+import { AnalyticsView } from "@/components/pages/vacancy/analytics.view";
 import { CandidatesView } from "@/components/pages/vacancy/candidates.view";
 import { Stats } from "@/components/pages/vacancy/stats.view";
 import { Label } from "@/components/ui/label";
@@ -102,7 +103,9 @@ const Page = observer(() => {
         <TabsContent value="candidates">
           <CandidatesView vm={vm} />
         </TabsContent>
-        <TabsContent value="analytics">sources</TabsContent>
+        <TabsContent value="analytics">
+          <AnalyticsView vm={vm} />
+        </TabsContent>
       </Tabs>
     </MainLayout>
   );

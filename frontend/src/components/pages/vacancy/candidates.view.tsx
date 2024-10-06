@@ -9,7 +9,7 @@ import { AddCandidateModal } from "./add-candidate.modal";
 
 const activeColumns: Column<CandidatesDto.ActiveCandidate>[] = [
   {
-    header: "№ кандидата",
+    header: "№",
     accessor: (x) => x.candidate_id,
   },
   {
@@ -25,7 +25,7 @@ const activeColumns: Column<CandidatesDto.ActiveCandidate>[] = [
     accessor: (x) => x.source,
   },
   {
-    header: "% схожести\nс вакансией",
+    header: "Схожесть\nс вакансией",
     accessor: (x) => `${x.similarity}%`,
   },
   {
@@ -45,7 +45,7 @@ const activeColumns: Column<CandidatesDto.ActiveCandidate>[] = [
 
 const declinedColumns: Column<CandidatesDto.DeclinedCandidate>[] = [
   {
-    header: "№ кандидата",
+    header: "№",
     accessor: (x) => x.candidate_id,
   },
   {
@@ -61,7 +61,7 @@ const declinedColumns: Column<CandidatesDto.DeclinedCandidate>[] = [
     accessor: (x) => x.source,
   },
   {
-    header: "% схожести\nс вакансией",
+    header: "Схожесть\nс вакансией",
     accessor: (x) => `${x.similarity}%`,
   },
   {
