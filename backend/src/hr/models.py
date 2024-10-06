@@ -33,13 +33,15 @@ class Vacancy(Base, TimestampMixin):
     recruiter_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
-    salary_high: Mapped[int] = mapped_column(
+    salary_low: Mapped[int] = mapped_column(
         sa.Integer,
         nullable=False,
         default=30_000,
         server_default="30000",
     )
-    salary_low: Mapped[int] = mapped_column(
+
+    salary_high: Mapped[int] = mapped_column(
+
         sa.Integer,
         nullable=False,
         default=70_000,
@@ -163,7 +165,7 @@ class Candidate(Base):
     # Объединенение по ;
     spezialization: Mapped[str] = mapped_column(sa.Text, nullable=False)
     # Объединенение по ;
-    education: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    education: Mapped[list[dict[str, tp.Any]]] = mapped_column(JSON, nullable=False)
     candidate_skills = relationship(
         "Skill",
         back_populates="candidates",
@@ -171,10 +173,16 @@ class Candidate(Base):
     )
     description: Mapped[str] = mapped_column(sa.Text, nullable=False)
     # Объединенение по :
-    experience: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    experience: Mapped[list[dict[str, tp.Any]]] = mapped_column(JSON, nullable=False)
     cv_url: Mapped[str] = mapped_column(sa.Text, nullable=False)
     raw_json: Mapped[dict[str, tp.Any]] = mapped_column(JSON, nullable=False)
     src: Mapped[str] = mapped_column(sa.Text, default="hh", nullable=False)
+
+    first_name: Mapped[str] = mapped_column(sa.Text, nullable=False)
+    last_name: Mapped[str] = mapped_column(sa.Text, nullable=False)
+
+    city: Mapped[str] = mapped_column(sa.Text)
+    country: Mapped[str] = mapped_column(sa.Text)
 
     vacancies = relationship(
         "Vacancy",

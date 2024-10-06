@@ -1,4 +1,5 @@
 from typing import List, Union
+import datetime as dt
 
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
@@ -10,7 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_db
 
+
 from .models import Skill, Vacancy, Roadmap, RoadmapStage
+
 from .schemas import (
     EXAMPLE_ALL_ACTIVE,
     EXAMPLE_STAGES,
@@ -25,6 +28,9 @@ from .schemas import (
     SkillSearchResult,
     VacancyCreate,
     VacancyDTO,
+    VacancyStats,
+    RecrutierStage,
+    EXAMPLE_STAGES,
 )
 
 router = APIRouter(
@@ -154,7 +160,8 @@ async def get_vacancy(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            )
+            ),
+            orm.joinedload(Vacancy.vacancy_candidates),
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -177,7 +184,8 @@ async def get_vacancy_roadmap(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            )
+            ),
+            orm.joinedload(Vacancy.vacancy_candidates),
         )
         .filter(Vacancy.id == vacancy_id)
     )
@@ -187,6 +195,42 @@ async def get_vacancy_roadmap(
     if not result:
         raise HTTPException(status_code=404, detail="Vacancy not found")
     return RoadmapDto(vacancy=VacancyDTO.model_validate(result), stages=EXAMPLE_STAGES)
+
+
+@router.get("/stats/{vacancy_id}")
+async def get_vacancy_stats(
+    vacancy_id: int,
+    db: AsyncSession = Depends(get_db),
+) -> VacancyStats:
+    """Get vacancy stats by ID"""
+    return VacancyStats()  # type: ignore
+
+
+@router.get("/recruiter/stages")
+async def get_vacancies_by_recruiter() -> list[RecrutierStage]:
+    return [
+        RecrutierStage(
+            stage_name="HR скриннинг",
+            candidate_id=5,
+            vacancy_name="Менеджер по успешному успеху",
+            stage_url="https://hh.ru",
+            deadline=dt.datetime.now() + dt.timedelta(days=5),
+        ),
+        RecrutierStage(
+            stage_name="Финальное интервью",
+            candidate_id=22,
+            vacancy_name="Менеджер по успешному успеху",
+            stage_url="https://hh.ru",
+            deadline=dt.datetime.now() + dt.timedelta(days=5),
+        ),
+        RecrutierStage(
+            stage_name="Финальное интервью",
+            candidate_id=33,
+            vacancy_name="Менеджер по успешному успеху",
+            stage_url="https://hh.ru",
+            deadline=dt.datetime.now() + dt.timedelta(days=5),
+        ),
+    ]
 
 
 @router.get("/candidates/active/{vacancy_id}")

@@ -93,13 +93,13 @@ class CandidateDto(BaseModel):
     # Объединенение по ;
     spezialization: str = Field(..., description="")
     # Объединенение по ;
-    education: str = Field(..., description="")
+    education: list[dict[str, tp.Any]] = Field(..., description="")
     candidate_skills: list[SkillSearchResult] = Field(
         None, description="List of skill IDs associated with candidate"
     )
     description: str = Field(..., description="")
     # Объединенение по :
-    experience: str = Field(..., description="")
+    experience: list[dict[str, tp.Any]] = Field(..., description="")
     cv_url: str = Field(..., description="")
     raw_json: dict[str, tp.Any] = Field(..., description="")
     src: str = Field(..., description="")
@@ -306,6 +306,41 @@ class AllCandidatesDeclinedDto(BaseModel):
 class AllCandidatesPotentialDto(BaseModel):
     vacancy: VacancyDTO = Field(..., description="Информация о вакансии")
     candidates: list[CandidatePotentialDto] = Field(..., description="")
+
+
+class SalaryExpectationDto(BaseModel):
+    start: float = Field(..., description="Начало диапазона зарплаты")
+    end: float = Field(..., description="Конец диапазона зарплаты")
+
+
+class VacancyStats(BaseModel):
+    people_per_vacancy: float = Field(
+        1.5, description="Количество кандидатов на вакансию"
+    )
+    candidates_salary: SalaryExpectationDto = Field(
+        SalaryExpectationDto(start=100_000.0, end=200_000.0),
+        description="Средняя зарплата на рынке",
+    )
+    market_salary: SalaryExpectationDto = Field(
+        SalaryExpectationDto(start=80_000, end=190_000),
+        description="Средняя зарплата на рынке",
+    )
+    candidate_median_salary: float = Field(
+        150_000, description="Медианная зарплата на рынке "
+    )
+    median_salary: SalaryExpectationDto = Field(
+        135, description="Медианная зарплата на рынке "
+    )
+
+
+class RecrutierStage(BaseModel):
+    """Текущие задачи рекрутера"""
+
+    vacancy_name: str = Field(..., description="Название вакансии")
+    stage_name: str = Field(..., description="Название этапа")
+    stage_url: str = Field(..., description="Ссылка на этап")
+    candidate_id: int = Field(..., description="ID кандидата")
+    deadline: dt.datetime = Field(..., description="Срок подачи заявки")
 
 
 EXAMPLE_ALL_ACTIVE = [
