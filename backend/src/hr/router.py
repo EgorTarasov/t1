@@ -10,13 +10,12 @@ from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.hr.schemas import SalaryExpectationDto
 from src.dependencies import get_db
-
+import random
 
 from .models import Skill, Vacancy, Roadmap, RoadmapStage
 
 from .schemas import (
     EXAMPLE_ALL_ACTIVE,
-    EXAMPLE_STAGES,
     EXAMPLES_ALL_DECLINED,
     EXAMPLES_ALL_POTENTIAL,
     AllCandidatesDeclinedDto,
@@ -30,7 +29,10 @@ from .schemas import (
     VacancyDTO,
     VacancyStats,
     RecrutierStage,
-    EXAMPLE_STAGES,
+    EXAMPLE_STAGES_1,
+    EXAMPLE_STAGES_2,
+    EXAMPLE_STAGES_3,
+    EXAMPLE_STAGES_4,
 )
 
 router = APIRouter(
@@ -191,10 +193,14 @@ async def get_vacancy_roadmap(
     )
     db_vacancy = await db.execute(stmt)
     result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
-
+    random.seed(vacancy_id)
+    stages = [EXAMPLE_STAGES_1, EXAMPLE_STAGES_2, EXAMPLE_STAGES_3, EXAMPLE_STAGES_4]
     if not result:
         raise HTTPException(status_code=404, detail="Vacancy not found")
-    return RoadmapDto(vacancy=VacancyDTO.model_validate(result), stages=EXAMPLE_STAGES)
+    return RoadmapDto(
+        vacancy=VacancyDTO.model_validate(result),
+        stages=random.choice(stages),
+    )
 
 
 @router.get("/stats/{vacancy_id}")
