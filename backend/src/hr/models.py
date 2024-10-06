@@ -33,13 +33,14 @@ class Vacancy(Base, TimestampMixin):
     recruiter_id: Mapped[int] = mapped_column(
         sa.Integer, sa.ForeignKey("users.id"), nullable=True
     )
-    salary_high: Mapped[int] = mapped_column(
+
+    salary_low: Mapped[int] = mapped_column(
         sa.Integer,
         nullable=False,
         default=30_000,
         server_default="30000",
     )
-    salary_low: Mapped[int] = mapped_column(
+    salary_high: Mapped[int] = mapped_column(
         sa.Integer,
         nullable=False,
         default=70_000,
@@ -156,7 +157,6 @@ class RoadmapStage(Base, TimestampMixin):
 
 class Candidate(Base):
     """Кандидаты"""
-
 
     __tablename__ = "candidates"  # type: ignore
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
