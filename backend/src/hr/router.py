@@ -90,6 +90,8 @@ async def create_vacancy(
         experience_to=vacancy.experience_to,
         education=vacancy.education,
         quantity=vacancy.quantity,
+        salary_high=vacancy.salary_high,
+        salary_low=vacancy.salary_low,
         direction=vacancy.direction,
         description=vacancy.description,
         type_of_employment=vacancy.type_of_employment,
@@ -102,6 +104,7 @@ async def create_vacancy(
 
     additional_skills = (await db.execute(stmt)).scalars()
 
+    db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)  # type: ignore
     db_vacancy.vacancy_skills = list(required_skills) + list(additional_skills)  # type: ignore
 
     try:
@@ -177,16 +180,36 @@ async def get_active_vacancies(
             orm.joinedload(
                 Vacancy.vacancy_candidates,
             ),
+            ),
+            orm.joinedload(
+                Vacancy.vacancy_candidates,
+            ),
         )
         .filter(Vacancy.id == vacancy_id)
     )
-    db_vacancy = await db.execute(stmt)
-    result: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+    try:
+        db_vacancy = await db.execute(stmt)
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=400, detail="User not found")
 
-    if not result:
-        raise HTTPException(status_code=404, detail="Vacancy not found")
+    vacancy: Vacancy | None = db_vacancy.unique().scalar_one_or_none()
+    candidates = []
+    for candidate in vacancy.vacancy_candidates:
+        candidates.append(
+            # CandidateVacancyDto(
+            #     source=candidate.src,
+            #     candidate_id=candidate.id,
+            # date_of_accept: dt.datetime = Field(..., description="The education level required")
+            # stage_name: str = Field(..., description="")
+            # similarity: int = Field(..., description="")
+            # )
+        )
+    logger.error(candidates)
+    # if not result:
+    #     raise HTTPException(status_code=404, detail="Vacancy not found")
     return AllCandidatesVacancyDto(
-        vacancy=VacancyDTO.model_validate(result), candidates=EXAMPLE_ALL_ACTIVE
+        vacancy=VacancyDTO.model_validate(vacancy), candidates=EXAMPLE_ALL_ACTIVE
     )
 
 
@@ -201,6 +224,10 @@ async def get_declined_vacancies(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
+            ),
+            orm.joinedload(
+                Vacancy.vacancy_candidates,
+            ),
             ),
             orm.joinedload(
                 Vacancy.vacancy_candidates,
@@ -220,6 +247,7 @@ async def get_declined_vacancies(
 
 @router.get("/candidates/potential/{vacancy_id}")
 async def get_potential_vacancies(
+async def get_potential_vacancies(
     vacancy_id: int,
     db: AsyncSession = Depends(get_db),
 ) -> AllCandidatesPotentialDto:
@@ -229,6 +257,10 @@ async def get_potential_vacancies(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
+            ),
+            orm.joinedload(
+                Vacancy.vacancy_candidates,
+            ),
             ),
             orm.joinedload(
                 Vacancy.vacancy_candidates,

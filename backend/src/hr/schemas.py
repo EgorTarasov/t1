@@ -62,6 +62,9 @@ class VacancyCreate(BaseModel):
     # направление в компании
     direction: str = Field("Аналитика", title="Направление")
 
+    salary_high: int = Field(100000, title="Верхняя граница зп")
+    salary_low: int = Field(150000, title="Нижняя граница зп")
+
     # дополнительные навыки
     additional_skills: list[int] = Field([3], title="Дополнительные навыки")
 
@@ -110,10 +113,14 @@ class VacancyDTO(BaseModel):
     quantity: int = Field(..., description="The number of vacancies available")
     description: str = Field(..., description="The description of the vacancy")
     type_of_employment: str = Field(..., description="The type of employment")
+
+    salary_high: int = Field(..., title="Higher salary border")
+    salary_low: int = Field(..., title="Lower salary border")
+
     vacancy_skills: list[SkillSearchResult] = Field(
         None, description="List of skill IDs associated with the vacancy"
     )
-    vacancy_candidates: list[CandidateDto] = Field(
+    vacancy_candidates: list[CandidateDto] | None = Field(
         None, description="List of candidates IDs associated with vacancy"
     )
 
