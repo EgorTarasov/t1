@@ -182,7 +182,8 @@ async def get_vacancy_roadmap(
         .options(
             orm.joinedload(
                 Vacancy.vacancy_skills,
-            )
+            ),
+            orm.joinedload(Vacancy.vacancy_candidates),
         )
         .filter(Vacancy.id == vacancy_id)
     )
