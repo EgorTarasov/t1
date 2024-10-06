@@ -26,11 +26,21 @@ const filterKeys: {
 export class VacanciesStore implements DisposableVm {
   filters: Filter<VacancyDto.Item>[] = [];
 
-  constructor(public readonly items: VacancyDto.Item[]) {
+  constructor(public items: VacancyDto.Item[] | undefined) {
     makeAutoObservable(this);
+
+    this.init();
+  }
+
+  async init() {
+    if (!this.items) {
+      const res = await VacancyEndpoint.list({ page: 1, size: 100 });
+      this.items = res.items;
+    }
+
     const filters = new Map<string, Set<string>>();
 
-    items.forEach((item) => {
+    this.items?.forEach((item) => {
       buildFilterKey(item, filterKeys, filters);
     });
 
@@ -43,14 +53,17 @@ export class VacanciesStore implements DisposableVm {
           () => this.filterItems(),
         ),
     );
+
+    this.filterItems();
   }
 
-  filteredItems: VacancyDto.Item[] = this.items;
+  filteredItems: VacancyDto.Item[] = [];
 
   filterItems() {
-    this.filteredItems = this.items.filter((item) => {
-      return this.filters.every((f) => f.values.includes(f.getValue(item)!));
-    });
+    this.filteredItems =
+      this.items?.filter((item) => {
+        return this.filters.every((f) => f.values.includes(f.getValue(item)!));
+      }) ?? [];
   }
 
   dispose() {
