@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.dependencies import get_db
 
-from .models import Skill, Vacancy, Roadmap, RoadmapStage
+from .models import Skill, Vacancy, RoadmapStage, Roadmap
 from .schemas import (
     EXAMPLE_ALL_ACTIVE,
     EXAMPLE_STAGES,
@@ -21,13 +21,14 @@ from .schemas import (
     AllCandidatesPotentialDto,
     AllCandidatesVacancyDto,
     CandidateDto,
-    VacancyStats,
     RoadmapDto,
     SkillCreate,
     SkillSearchResult,
     VacancyCreate,
     VacancyDTO,
+    VacancyStats,
     RecrutierStage,
+    EXAMPLE_STAGES,
 )
 
 router = APIRouter(
