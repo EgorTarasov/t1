@@ -16,8 +16,8 @@ export const ChartSection: FC<Props> = observer(
     const [collapsed, setCollapsed] = useState(false);
 
     return (
-      <section className="bg-white rounded-2xl border w-full">
-        <div className="flex justify-between p-5 pb-0">
+      <section className="bg-white rounded-2xl border w-full py-5">
+        <div className="flex justify-between px-5 pb-0">
           <h2
             className={cn(
               "text-2xl font-medium",
@@ -45,7 +45,7 @@ export const ChartSection: FC<Props> = observer(
         )}
         <div
           className={cn(
-            "flex gap-8 xl:gap-32 mt-3 overflow-auto p-5 pt-0",
+            "flex gap-8 xl:gap-32 mt-3 overflow-auto px-5",
             collapsed && "hidden",
             x.allowOverflow && "overflow-visible",
           )}

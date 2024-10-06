@@ -82,10 +82,9 @@ const potentialColumns: Column<CandidatesDto.PotentialCandidate>[] = [
   {
     header: "Источник",
     accessor: (x) => x.source,
-    className: "w-[1%]",
   },
   {
-    header: "% схожести\nс вакансией",
+    header: "% схожести с вакансией",
     accessor: (x) => `${x.similarity}%`,
   },
 ];
