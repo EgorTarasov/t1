@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { TanStackRouterVite } from "@tanstack/router-vite-plugin";
 import path from "path";
-import { VitePWA } from "vite-plugin-pwa";
+// import { VitePWA } from "vite-plugin-pwa";
 import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
@@ -19,13 +19,13 @@ export default defineConfig({
       },
       include: "**/*.svg",
     }),
-    VitePWA({
-      registerType: "autoUpdate",
-      manifest: {
-        theme_color: "#015AAE",
-        name: "Дашборд рекуртера",
-      },
-    }),
+    // VitePWA({
+    //   registerType: "autoUpdate",
+    //   manifest: {
+    //     theme_color: "#015AAE",
+    //     name: "Дашборд рекуртера",
+    //   },
+    // }),
   ],
   build: {
     target: "esnext",

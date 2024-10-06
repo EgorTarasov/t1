@@ -3,11 +3,10 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import "./globals.css";
 import { configure } from "mobx";
-import { registerSW } from "virtual:pwa-register";
 
-registerSW({
-  immediate: true,
-});
+// registerSW({
+//   immediate: true,
+// });
 
 configure({
   enforceActions: "never",
