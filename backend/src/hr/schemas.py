@@ -308,6 +308,41 @@ class AllCandidatesPotentialDto(BaseModel):
     candidates: list[CandidatePotentialDto] = Field(..., description="")
 
 
+class SalaryExpectationDto(BaseModel):
+    start: float = Field(..., description="Начало диапазона зарплаты")
+    end: float = Field(..., description="Конец диапазона зарплаты")
+
+
+class VacancyStats(BaseModel):
+    people_per_vacancy: float = Field(
+        1.5, description="Количество кандидатов на вакансию"
+    )
+    candidates_salary: SalaryExpectationDto = Field(
+        SalaryExpectationDto(start=100_000.0, end=200_000.0),
+        description="Средняя зарплата на рынке",
+    )
+    market_salary: SalaryExpectationDto = Field(
+        SalaryExpectationDto(start=80_000, end=190_000),
+        description="Средняя зарплата на рынке",
+    )
+    candidate_median_salary: float = Field(
+        150_000, description="Медианная зарплата на рынке "
+    )
+    median_salary: SalaryExpectationDto = Field(
+        135, description="Медианная зарплата на рынке "
+    )
+
+
+class RecrutierStage(BaseModel):
+    """Текущие задачи рекрутера"""
+
+    vacancy_name: str = Field(..., description="Название вакансии")
+    stage_name: str = Field(..., description="Название этапа")
+    stage_url: str = Field(..., description="Ссылка на этап")
+    candidate_id: int = Field(..., description="ID кандидата")
+    deadline: dt.datetime = Field(..., description="Срок подачи заявки")
+
+
 EXAMPLE_ALL_ACTIVE = [
     CandidateVacancyDto(
         candidate_id=1,
